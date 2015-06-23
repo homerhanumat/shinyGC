@@ -7,7 +7,7 @@ shinyUI(fluidPage(
     sidebarPanel(
       width=3,
       conditionalPanel(
-        condition="output.newVar == true",
+        condition="input.sample == 0 || output.newVar == true",
         radioButtons("variable","Variable to study:",selected="income",
                      c(names(imagpop)))
         ),
