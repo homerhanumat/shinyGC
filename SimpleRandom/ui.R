@@ -11,7 +11,8 @@ shinyUI(fluidPage(
         radioButtons("variable","Variable to study:",selected="income",
                      c(names(imagpop)))
         ),
-      numericInput("n", "Desired Sample Size:", value=100, min=2, max=1000),
+      helpText("Enter desired sample size below:  anything from 4 to 1000."),
+      numericInput("n", "Desired Sample Size:", value=25, min=4, max=1000),
       actionButton("sample", HTML("<strong>Take the Sample!</strong>")),
       conditionalPanel(
         condition="output.newVar == false",
