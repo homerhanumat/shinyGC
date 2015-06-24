@@ -8,6 +8,7 @@ navbarPage(
     sidebarPanel(
       conditionalPanel(
         condition = "input.submit == 0 || output.beginning == true",
+        textInput("player","Enter your name"),
         helpText("How good are you at finding where the regression line lies?",
              "Adjust the sliders below to change the y-intercept and the",
              "slope of the solid line.")
@@ -46,10 +47,20 @@ navbarPage(
         ),
       tableOutput("score"),
       conditionalPanel(
+        condition = "input.player != '' && output.reporting == true",
+        br(),
+        textOutput("rank"),
+        br()
+      ),
+      conditionalPanel(
         condition="output.reporting == true",
         tableOutput("revelation")
         )
     )
+  ),
+  tabPanel(
+    title = "Hall of Fame",
+    dataTableOutput("leaders")
   ),
   tabPanel(
     title = "About",

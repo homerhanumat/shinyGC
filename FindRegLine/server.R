@@ -14,6 +14,9 @@ x <- 1:10 # x-values
 # Define server logic for FindRegLine
 function(input, output, session) {
   
+  # read in players records
+  leaders <- read.csv(file = "leaders.csv", header = TRUE, stringsAsFactors = FALSE)
+  
   # users should start in different places
   set.seed(as.numeric(Sys.time()))
   
@@ -25,6 +28,7 @@ function(input, output, session) {
   )
   
   #set up:
+  player_rank <- NULL
   ta <- round(runif(1, min = lowa, max = higha), 2)
   tb <- round(runif(1, min = lowb, max = highb), 2)
   y <- ta+tb*x+rnorm(n,mean=0,sd=sigma)
@@ -99,6 +103,19 @@ function(input, output, session) {
                {
                  rv$reporting <- TRUE
                  rv$playing <- FALSE
+                 if (input$player != "") {
+                   game <- data.frame(name = input$player,
+                                      score = score,
+                                      time = as.character(Sys.time()))
+                   rank <- max(which(score >= leaders$score))
+                   if (!is.infinite(rank)) {
+                     player_rank <<- rank + 1
+                   } else player_rank <<- 1
+                   leaders <<- rbind(leaders,game)
+                   ordered_scores <- order(leaders$score)
+                   leaders <<- leaders[ordered_scores,]
+                   write.csv(leaders, file = "leaders.csv", row.names = FALSE)
+                 }
                })
   
   observeEvent(input$reset,
@@ -192,6 +209,16 @@ function(input, output, session) {
               "Closeness Measure",
               "Turns So Far","Score (Turns + Closeness)")
    tab
+ })
+ 
+ output$rank <- reactive({
+   input$enditall
+   paste0("Your rank for this game is: ", player_rank,".")
+ })
+ 
+ output$leaders <- renderDataTable({
+   input$enditall
+   leaders
  })
  
  output$revelation <- renderTable({
