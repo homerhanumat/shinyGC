@@ -88,6 +88,11 @@ function(input, output, session) {
                     step=0.01,value=0)
           })
   
+  observeEvent(input$updateBoard,
+               leaders <<- read.csv(file = "leaders.csv", 
+                                    header = TRUE, stringsAsFactors = FALSE)
+               )
+  
   observeEvent(input$submit,
                {
                  rv$beginning <- FALSE
@@ -104,13 +109,19 @@ function(input, output, session) {
                  rv$reporting <- TRUE
                  rv$playing <- FALSE
                  if (input$player != "") {
+                   # update the leader board in case others are playing
+                   leaders <<- read.csv(file = "leaders.csv", 
+                                        header = TRUE, stringsAsFactors = FALSE)
+                   # make record for the game just ended
                    game <- data.frame(name = input$player,
                                       score = score,
                                       time = as.character(Sys.time()))
+                   # compute rank
                    rank <- max(which(score >= leaders$score))
                    if (!is.infinite(rank)) {
                      player_rank <<- rank + 1
                    } else player_rank <<- 1
+                   # add this game to the board
                    leaders <<- rbind(leaders,game)
                    ordered_scores <- order(leaders$score)
                    leaders <<- leaders[ordered_scores,]
@@ -213,11 +224,12 @@ function(input, output, session) {
  
  output$rank <- reactive({
    input$enditall
-   paste0("Your rank for this game is: ", player_rank,".")
+   paste0("<h3>Your rank for this game is: ", player_rank,".</h3>")
  })
  
  output$leaders <- renderDataTable({
    input$enditall
+   input$updateBoard
    leaders
  })
  

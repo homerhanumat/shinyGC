@@ -38,6 +38,10 @@ navbarPage(
     ),
   mainPanel(
       conditionalPanel(
+        condition = "input.player != '' && output.reporting == true",
+        htmlOutput("rank")
+    ),
+      conditionalPanel(
         condition="input.submit == 0 || (output.beginning == true || output.playing == true)",
         plotOutput("gamecloud")
         ),
@@ -47,12 +51,6 @@ navbarPage(
         ),
       tableOutput("score"),
       conditionalPanel(
-        condition = "input.player != '' && output.reporting == true",
-        br(),
-        textOutput("rank"),
-        br()
-      ),
-      conditionalPanel(
         condition="output.reporting == true",
         tableOutput("revelation")
         )
@@ -60,6 +58,8 @@ navbarPage(
   ),
   tabPanel(
     title = "Hall of Fame",
+    actionButton("updateBoard", "Update the Hall of Fame (as my classmates play)"),
+    HTML("<p> </p>"),
     dataTableOutput("leaders")
   ),
   tabPanel(
