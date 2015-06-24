@@ -11,11 +11,11 @@ sigma <- 3
 n <- 10 # number of points in in cloud
 x <- 1:10 # x-values
 
+# read in players records
+leaders <- read.csv(file = "leaders.csv", header = TRUE, stringsAsFactors = FALSE)
+
 # Define server logic for FindRegLine
 function(input, output, session) {
-  
-  # read in players records
-  leaders <- read.csv(file = "leaders.csv", header = TRUE, stringsAsFactors = FALSE)
   
   # users should start in different places
   set.seed(as.numeric(Sys.time()))
@@ -109,23 +109,26 @@ function(input, output, session) {
                  rv$reporting <- TRUE
                  rv$playing <- FALSE
                  if (input$player != "") {
-                   # update the leader board in case others are playing
+                   # update the leader board in case others are playing.
+                   # get the latest data:
                    leaders <<- read.csv(file = "leaders.csv", 
                                         header = TRUE, stringsAsFactors = FALSE)
+                   # sort it:
+                   leaders <<- leaders[order(leaders$score),]
                    # make record for the game just ended
-                   game <- data.frame(name = input$player,
-                                      score = score,
-                                      time = as.character(Sys.time()))
+                   name <- input$player
+                   lastScore <- score
+                   time <- as.character(Sys.time())
                    # compute rank
-                   rank <- max(which(score >= leaders$score))
+                   rank <- max(which(lastScore >= leaders$score))
                    if (!is.infinite(rank)) {
                      player_rank <<- rank + 1
                    } else player_rank <<- 1
                    # add this game to the board
-                   leaders <<- rbind(leaders,game)
-                   ordered_scores <- order(leaders$score)
-                   leaders <<- leaders[ordered_scores,]
-                   write.csv(leaders, file = "leaders.csv", row.names = FALSE)
+                   game <- as.matrix(t(c(name, lastScore, time)))
+                   write.table(game, file = "leaders.csv", 
+                             append = TRUE, row.names = FALSE, sep = ",",
+                             col.names = FALSE)
                  }
                })
   
@@ -230,8 +233,10 @@ function(input, output, session) {
  output$leaders <- renderDataTable({
    input$enditall
    input$updateBoard
-   leaders
+   leaders[order(leaders$score),]
  })
+ 
+ outputOptions(output, "leaders", suspendWhenHidden = FALSE)
  
  output$revelation <- renderTable({
    if (input$enditall > 0) {
