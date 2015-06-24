@@ -43,7 +43,9 @@ navbarPage(
     ),
       conditionalPanel(
         condition="input.submit == 0 || (output.beginning == true || output.playing == true)",
-        plotOutput("gamecloud")
+        plotOutput("gamecloud"),
+        HTML("<h5>(Note: x and y axes for the above plot are in yellow.)</h5>"),
+        br()
         ),
       conditionalPanel(
         condition="output.reporting == true",
