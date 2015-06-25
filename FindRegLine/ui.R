@@ -71,7 +71,6 @@ navbarPage(
   ),
   tabPanel(
     title = "About",
-    # includeHTML("infoFiles/about.html")
-    HTML("TODO")
+    includeHTML("infoFiles/about.html")
   )
 )

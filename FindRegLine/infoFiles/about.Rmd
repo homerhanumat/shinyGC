@@ -2,7 +2,9 @@
 title: "About this App"
 author: "Homer White"
 date: "June 24, 2015"
-output: html_document
+output: 
+  html_document:
+    theme:  null
 ---
 
 ## Determining the Score
@@ -21,7 +23,7 @@ the mean of the $y$-coordinates of the points on the scatter plot.  Of all horiz
 
 When you begin a game, the $\bar{y}$-line is drawn for you.
 
-### Error Summ of Squares
+### Error Sum of Squares
 
 For any line $l$ with equation $y = a + bx$, we define the *error sum of squares* (ESS for short) of the line as follows:
 
