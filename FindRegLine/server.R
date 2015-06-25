@@ -12,7 +12,13 @@ n <- 10 # number of points in in cloud
 x <- 1:10 # x-values
 
 # read in players records
-leaders <- read.csv(file = "leaders.csv", header = TRUE, stringsAsFactors = FALSE)
+if (file.exists("leaders.csv")) {
+  leaders <- read.csv(file = "leaders.csv", header = TRUE, stringsAsFactors = FALSE)
+} else {
+    leaders <- data.frame(name = "Nortius Maximus", score = 250,
+                               time = "0033-04-15 12:00:21 EDT")
+    write.csv(leaders, file = "leaders.csv")
+  }
 
 # Define server logic for FindRegLine
 function(input, output, session) {
@@ -217,11 +223,11 @@ function(input, output, session) {
    input$submit
    input$reset
    tab <- rbind(your.ss,ess,close,turns,round(score,3))
-   colnames(tab) <- "Score Report"
-   rownames(tab) <- c("Your Error Sum of Squares",
-              "Regression Line's Error Sum of Squares",
+   colnames(tab) <- "Report"
+   rownames(tab) <- c("Your ESS",
+              "Reg Line's ESS",
               "Closeness Measure",
-              "Turns So Far","Score (Turns + Closeness)")
+              "Turns So Far","Score So Far")
    tab
  })
  
@@ -233,6 +239,8 @@ function(input, output, session) {
  output$leaders <- renderDataTable({
    input$enditall
    input$updateBoard
+   leaders <<- read.csv(file = "leaders.csv", 
+            header = TRUE, stringsAsFactors = FALSE)
    leaders[order(leaders$score),]
  })
  
@@ -242,7 +250,7 @@ function(input, output, session) {
    if (input$enditall > 0) {
      coefs <- round(coef(mod),2)
      tab <- rbind(c(input$a,input$b),coefs)
-     rownames(tab) <- c("Your Final Guesses","Regression Line")
+     rownames(tab) <- c("Your Line","Regression Line")
      colnames(tab) <- c("y-Intercept","Slope")
      tab
      }

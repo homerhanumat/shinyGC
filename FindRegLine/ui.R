@@ -51,11 +51,16 @@ navbarPage(
         condition="output.reporting == true",
         plotOutput("finalcloud")
         ),
-      tableOutput("score"),
-      conditionalPanel(
-        condition="output.reporting == true",
-        tableOutput("revelation")
+      fluidRow(
+        column(width = 6,
+               tableOutput("score")),
+        column(width = 3,
+               conditionalPanel(
+                 condition="output.reporting == true",
+                 tableOutput("revelation")
+                 )
         )
+      )
     )
   ),
   tabPanel(
