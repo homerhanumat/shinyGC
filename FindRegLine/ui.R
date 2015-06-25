@@ -65,7 +65,7 @@ navbarPage(
   ),
   tabPanel(
     title = "Leader Board",
-    actionButton("updateBoard", "Update the Hall of Fame (as my classmates play)"),
+    actionButton("updateBoard", "Update the Board (as others play)"),
     HTML("<p> </p>"),
     DT::dataTableOutput("leaders")
   ),
