@@ -17,7 +17,7 @@ if (file.exists("leaders.csv")) {
 } else {
     leaders <- data.frame(name = "Nortius Maximus", score = 250,
                                time = "0033-04-15 12:00:21 EDT")
-    write.csv(leaders, file = "leaders.csv")
+    write.csv(leaders, file = "leaders.csv", row.names = FALSE)
   }
 
 # Define server logic for FindRegLine
