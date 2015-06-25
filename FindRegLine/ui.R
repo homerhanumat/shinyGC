@@ -64,13 +64,14 @@ navbarPage(
     )
   ),
   tabPanel(
-    title = "Hall of Fame",
+    title = "Leader Board",
     actionButton("updateBoard", "Update the Hall of Fame (as my classmates play)"),
     HTML("<p> </p>"),
     dataTableOutput("leaders")
   ),
   tabPanel(
     title = "About",
+    # includeHTML("infoFiles/about.html")
     HTML("TODO")
   )
 )
