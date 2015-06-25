@@ -1,4 +1,7 @@
 library(shiny)
+library(magrittr)
+library(DT)
+
 
 # bounds for intercept
 lowa <- -5
@@ -14,6 +17,8 @@ x <- 1:10 # x-values
 # read in players records
 if (file.exists("leaders.csv")) {
   leaders <- read.csv(file = "leaders.csv", header = TRUE, stringsAsFactors = FALSE)
+  leaders$time <- as.POSIXct(leaders$time)
+  leaders$rank <- order(leaders$score)
 } else {
     leaders <- data.frame(name = "Nortius Maximus", score = 250,
                                time = "0033-04-15 12:00:21 EDT")
@@ -95,8 +100,12 @@ function(input, output, session) {
           })
   
   observeEvent(input$updateBoard,
-               leaders <<- read.csv(file = "leaders.csv", 
+               {
+                  leaders <<- read.csv(file = "leaders.csv", 
                                     header = TRUE, stringsAsFactors = FALSE)
+                  leaders$time <<- as.POSIXct(leaders$time)
+                  leaders$rank <<- order(leaders$score)
+               }
                )
   
   observeEvent(input$submit,
@@ -235,16 +244,39 @@ function(input, output, session) {
    input$enditall
    paste0("<h3>Your rank for this game is: ", player_rank,".</h3>")
  })
+
+# before DT: 
+#  output$leaders <- renderDataTable({
+#    input$enditall
+#    input$updateBoard
+#    leaders <<- read.csv(file = "leaders.csv", 
+#             header = TRUE, stringsAsFactors = FALSE)
+#    leaders[order(leaders$score),]
+#  })
+#  
+# outputOptions(output, "leaders", suspendWhenHidden = FALSE)
  
- output$leaders <- renderDataTable({
-   input$enditall
-   input$updateBoard
-   leaders <<- read.csv(file = "leaders.csv", 
-            header = TRUE, stringsAsFactors = FALSE)
-   leaders[order(leaders$score),]
- })
+# try with DT
  
- outputOptions(output, "leaders", suspendWhenHidden = FALSE)
+  observe({
+    input$enditall
+    input$updateBoard
+    temp <- read.csv(file = "leaders.csv", 
+                     header = TRUE, stringsAsFactors = FALSE)
+    leaders <<- temp[order(temp$score), ]
+    leaders$time <<- as.POSIXct(leaders$time)
+    leaders$rank <<- order(leaders$score)
+  })
+  
+  output$leaders <- DT::renderDataTable(
+    datatable(leaders, rownames = FALSE, 
+              caption = "Here is the Leader Board:",
+              filter = "bottom") %>%
+      formatStyle(
+        'name',
+        backgroundColor = styleEqual(input$player, 'lightblue')) %>%
+      formatDate(columns = "time", method = "toLocaleString")
+  )
  
  output$revelation <- renderTable({
    if (input$enditall > 0) {
