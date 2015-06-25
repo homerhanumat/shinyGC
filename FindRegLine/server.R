@@ -274,8 +274,7 @@ function(input, output, session) {
               filter = "bottom") %>%
       formatStyle(
         'name',
-        backgroundColor = styleEqual(input$player, 'lightblue')) %>%
-      formatDate(columns = "time", method = "toLocaleString")
+        backgroundColor = styleEqual(input$player, 'lightblue'))
   )
  
  output$revelation <- renderTable({
