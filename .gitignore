@@ -2,5 +2,6 @@
 .Rhistory
 .RData
 *.Rproj
-/../rsconnect
-/../shinyapps
+*/rsconnect
+*/shinyapps
+FindRegLine/rsconnect/
