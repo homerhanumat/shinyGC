@@ -6,8 +6,9 @@ Some apps were written a while back when I was just learning my way around Shiny
 
 Reasonably good code can be found in:
 
-* CIMean
-* FindRegLine
+* CIMean (explore confidence interval using simulation)
+* FindRegLine (regression line game that records students' scores)
+* GetToKnow (survey app, souped up with Google maps and basic descriptive statistics)
 
 A tutorial on writing Shiny teaching apps can be found at:
 
