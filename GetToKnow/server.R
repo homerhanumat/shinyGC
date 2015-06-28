@@ -4,6 +4,7 @@ library(shiny)
 library(magrittr)
 library(DT)
 library(leaflet)
+library(XML)
 library(dismo)
 
 timeLimit <- 3600*24  # time lapse in seconds before we re-initiate data
