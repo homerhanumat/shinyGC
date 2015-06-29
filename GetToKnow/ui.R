@@ -1,5 +1,18 @@
 library(DT)
 library(leaflet)
+library(shinyjs)
+
+fieldsMandatory <- c("name", "class", "semester","year","address")
+
+labelMandatory <- function(label) {
+  tagList(
+    label,
+    span("*", class = "mandatory_star")
+  )
+}
+
+appCSS <-
+  ".mandatory_star { color: red; }"
 
 surveyVarChoices <- c("Age" = "age",
                       "Address" = "address",
@@ -13,7 +26,9 @@ surveyVarChoices <- c("Age" = "age",
                       "Belief in extraterrestrial life" = "extra_life",
                       "Sex" = "sex",
                       "Favorite website" = "link",
-                      "Surprising Fact" = "surprise")
+                      "Random choice" = "random",
+                      "Surprising Fact" = "surprise"
+                      )
 
 surveyVarChoicesSummary <- c("Age" = "age",
                              "Major" = "major",
@@ -25,19 +40,29 @@ surveyVarChoicesSummary <- c("Age" = "age",
                              "Belief in love at first sight" = "love_first",
                              "Belief in extraterrestrial life" = "extra_life",
                              "Sex" = "sex",
+                             "Random choice" = "random",
                              "Surprising fact" = "surprise"
-)
+                             )
 
 ui = navbarPage(
+  shinyjs::useShinyjs(),
+  shinyjs::inlineCSS(appCSS),
   title = "Ice-Breaker Survey",
   tabPanel(
     title = "Survey",
     fluidPage(
-    column(width = 6,
+
+      div(id = "form",
+        column(width = 6,
       textInput("name", "Name", ""),
-    sliderInput("age", "Your Age", 15, 70, 18, step = 1,ticks = FALSE),
-    textInput("address", "Your Address", ""),
-    selectInput("major", "Intended Major",
+      textInput("class", "Name of this course", ""),
+      selectInput("semester","Semester", 
+                  choices = c("Fall","Spring","Summer1","Summer2"), selected = ""),
+      selectInput("year", "Year", 
+                  choices = c("",as.character(2015:2020)), selected = ""),
+      sliderInput("age", "Your Age", 15, 70, 18, step = 1,ticks = FALSE),
+      textInput("address", "Your Address (type, do not use autofill):", ""),
+      selectInput("major", "Intended Major",
                 choices = c("","Accounting","Athletic Training","Art","Biology",
                             "Business",
                             "Chemistry",
@@ -58,13 +83,9 @@ ui = navbarPage(
                             "Other Major",
                             "I Have No Idea!"),
                 selected = ""),
-    sliderInput("height","Your height (in inches)",53,84,66,
+      sliderInput("height","Your height (in inches)",53,84,66,
                 step = 0.5,ticks = FALSE),
-    sliderInput("ideal_ht","Your ideal height (in inches)",53,84,66,
-                step = 0.5,ticks = FALSE),
-    sliderInput("fastest","Fastest speed you ever drove a car (in mph)",0,200,70,
-                step = 1,ticks = FALSE),
-    sliderInput("sleep","Average amount of sleep at night (hours)",0,20,7,
+      sliderInput("ideal_ht","Your ideal height (in inches)",53,84,66,
                 step = 0.5,ticks = FALSE)
     ),
     column(width = 6,
@@ -76,9 +97,22 @@ ui = navbarPage(
       selectInput("extra_life","Do you believe in extraterrestrial life?",
                   choices = c("","yes","no"), selected = ""),
       selectInput("sex","I am a:",choices = c("","female","male"), selected = ""),
+      selectInput("random", "Pick one of these numbers at random:",
+                  choices = c("",as.character(1:10)), selected = ""),
       textInput("link","URL of a favorite website:","http://google.com"),
       textInput("surprise","A Surprising fact about me:","I have no surprises"),
+      sliderInput("fastest","Fastest speed you ever drove a car (in mph)",0,200,70,
+                  step = 1,ticks = FALSE),
+      sliderInput("sleep","Average amount of sleep at night (hours)",0,20,7,
+                  step = 0.5,ticks = FALSE),
       actionButton("submit", "Submit", class = "btn-primary")
+    )
+  )),
+  shinyjs::hidden(
+    div(
+      id = "thankyou_msg",
+      h3("Thanks for your submission!"),
+      actionLink("submit_another", "Submit another response")
     )
   )
   ),
