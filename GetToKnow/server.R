@@ -44,6 +44,7 @@ processVariables <- function(data) {
 
 # read in previous responses
 if (file.exists("responses.csv")) {
+  print("got here")
   responses <- read.csv(file = "responses.csv", header = TRUE, stringsAsFactors = FALSE)
   responses <- processVariables(responses)
 } else {
@@ -71,6 +72,7 @@ if (file.exists("responses.csv")) {
                           longitude = location$lon,
                           time = as.character(Sys.time())
                         )
+  print(responses)
   write.csv(responses, file = "responses.csv", row.names = FALSE)
 }
 
