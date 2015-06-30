@@ -245,9 +245,13 @@ function(input, output, session) {
   
   observe({
     df <- isolate(rv$responses)
-    dfSelected <- invisible(brushedPoints(df,input$plot_brush,
-                                          xvar = "fastest", allRows = TRUE))
-    fastestBoolG <- !dfSelected$selected_
+    if (!is.null(input$plot_brush)) {
+      dfSelected <- invisible(brushedPoints(df,input$plot_brush,
+                                            xvar = "fastest", allRows = TRUE))
+      fastestBoolG <- dfSelected$selected_
+    } else {
+      fastestBoolG <- rep(TRUE, nrow(df))
+    }
     levs <- levels(df$sex)
     if (!is.null(input$plot_click)) {
       selected <- levs[round(input$plot_click$x)]
@@ -263,6 +267,13 @@ function(input, output, session) {
   # when user double-clicks on se bar graph, stop filtering by sex
   observeEvent(input$plot_dbl_click,{
     rv$graphFiltered <- rv$fastestBoolG
+  })
+  
+  # when user double-clicks on the fastest graph, stop filtering by fastest speed
+  # useful only if user has brushed the entire plot, otherwise just clicking
+  # will undo
+  observeEvent(input$plot2_dbl_click,{
+    rv$graphFiltered <- rv$sexBoolG
   })
   
   output$graph <- renderPlot({

@@ -154,7 +154,8 @@ tagList(shinyjs::useShinyjs(), shinyjs::inlineCSS(appCSS), navbarPage(
                     "Brush the your mouse horizontally over the graph below."),
           plotOutput("fastestGraph", 
                       brush = brushOpts(id = "plot_brush", fill = "lightblue", 
-                                        direction = "x"))
+                                        direction = "x"),
+                     dblclick = "plot2_dbl_click")
           )
       )
     ),
