@@ -2,8 +2,6 @@ library(DT)
 library(leaflet)
 library(shinyjs)
 
-fieldsMandatory <- c("name", "class", "semester","year","address")
-
 labelMandatory <- function(label) {
   tagList(
     label,
@@ -44,18 +42,17 @@ surveyVarChoicesSummary <- c("Age" = "age",
                              "Surprising fact" = "surprise"
                              )
 
-ui = navbarPage(
-  shinyjs::useShinyjs(),
-  shinyjs::inlineCSS(appCSS),
+navbarPage(
+  # shinyjs::useShinyjs(),
   title = "Ice-Breaker Survey",
   tabPanel(
     title = "Survey",
     fluidPage(
-
-      div(id = "form",
+      conditionalPanel(
+        condition = "input.submit == 0",
         column(width = 6,
-      textInput("name", "Name", ""),
-      textInput("class", "Name of this course", ""),
+        textInput("name", "Name", ""),
+        textInput("class", "Name of this course", ""),
       selectInput("semester","Semester", 
                   choices = c("Fall","Spring","Summer1","Summer2"), selected = ""),
       selectInput("year", "Year", 
@@ -108,13 +105,10 @@ ui = navbarPage(
       actionButton("submit", "Submit", class = "btn-primary")
     )
   )),
-  shinyjs::hidden(
-    div(
-      id = "thankyou_msg",
-      h3("Thanks for your submission!"),
-      actionLink("submit_another", "Submit another response")
+    conditionalPanel(
+      condition = "input.submit > 0",
+      h3("Thanks for your submission!")
     )
-  )
   ),
   tabPanel(
     title = "Map",
@@ -122,6 +116,13 @@ ui = navbarPage(
       sidebarPanel(
         selectInput("varMap", "Variable to Display",
                     choices = surveyVarChoices,selected = "age"),
+        helpText("Here are some controls to select who shows up on the map:"),
+        # Render the filter controls:
+        uiOutput("classMap"),
+        uiOutput("semesterMap"),
+        uiOutput("yearMap"),
+        uiOutput("sexMap"),
+        uiOutput("fastestMap"),
         actionButton("update1","Update (as others enter data)")
       ),
       mainPanel(

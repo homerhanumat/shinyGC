@@ -10,6 +10,8 @@ library(dismo)
 # for markers
 iconURL <- "Tiger_head_solo.png"
 
+fieldsMandatory <- c("name", "class", "semester","year","address")
+
 labelFinder <- function(varName) {
   switch(varName,
          "age" = "Age (in years)",
@@ -75,13 +77,22 @@ if (file.exists("responses.csv")) {
 function(input, output, session) {
   
   rv <- reactiveValues(
-    responses = responses
+    responses = responses,
+    mapFiltered = rep(TRUE, nrow(responses))
   )
   
-  observeEvent(input$get_started,{
-               shinyjs::toggleState("intro_message")
-               shinyjs::toggleState("form")
-               })
+  # Enable the Submit button when all mandatory fields are filled out
+#   observe({
+#     mandatoryFilled <-
+#       vapply(fieldsMandatory,
+#              function(x) {
+#                !is.null(input[[x]]) && input[[x]] != ""
+#              },
+#              logical(1))
+#     mandatoryFilled <- all(mandatoryFilled)
+#     
+#     shinyjs::toggleState(id = "submit", condition = mandatoryFilled)
+#   })
   
   observeEvent(input$submit,{
     location <- geocode(input$address, oneRecord = TRUE)
@@ -113,15 +124,6 @@ function(input, output, session) {
     rv$responses <- rbind(rv$responses, response)
     # write to file:
     write.table(rv$responses, file = "responses.csv", row.names = FALSE, sep = ",")
-    # show thank-you:
-    shinyjs::reset("form")
-    shinyjs::hide("form")
-    shinyjs::show("thankyou_msg")
-  })
-  
-  observeEvent(input$sumbit_another,{
-    shinyjs::hide("thankyou_msg")
-    shinyjs::show("form")
   })
   
   observe({
@@ -132,13 +134,85 @@ function(input, output, session) {
     rv$responses <- processVariables(temp)
   })
   
+  output$classMap <- renderUI({
+    var <- rv$responses$class
+    uni <- unique(var)
+    vals <- uni[!is.na(uni)]
+    selectInput(inputId = "classMap", label = "Class", multiple = TRUE,
+                   choices = c("",vals), selected = "")
+  })
+  
+  output$semesterMap <- renderUI({
+    var <- rv$responses$semester
+    uni <- unique(var)
+    vals <- uni[!is.na(uni)]
+    selectInput(inputId = "semesterMap", label = "Semester", multiple = TRUE,
+                   choices = c("",vals), selected = "")
+  })
+  
+  output$yearMap <- renderUI({
+    var <- as.character(rv$responses$year)
+    uni <- unique(var)
+    vals <- uni[!is.na(uni)]
+    selectInput(inputId = "yearMap", label = "Year", multiple = TRUE,
+                   choices = c("",vals), selected = "")
+  })
+  
+  output$sexMap <- renderUI({
+    var <- as.character(rv$responses$sex)
+    uni <- unique(var)
+    vals <- uni[!is.na(uni)]
+    selectInput(inputId = "sexMap", label = "Sex",
+                   choices = c("",vals), selected = "")
+  })
+  
+  output$fastestMap <- renderUI({
+    speeds <- rv$responses$fastest
+    sliderInput(inputId = "fastestMap", label = "Fastest speed driven:",
+                min = min(speeds), max = max(speeds),
+                value = c(min(speeds), max(speeds)))
+  })
+  
+  observe({
+    resp <- rv$responses
+    all <- rep(TRUE, nrow(resp))
+    if (!is.null(input$classMap)) {
+      classBool <- with(resp, class %in% input$classMap)
+    } else {
+        classBool <- all
+    }
+    if (!is.null(input$semesterMap)) {
+      semesterBool <- with(resp, semester %in% input$semesterMap)
+    } else {
+      semesterBool <- all
+    }
+    if (!is.null(input$yearMap)) {
+      yearBool <- with(resp, year %in% input$yearMap)
+    } else {
+      yearBool <- all
+    }
+    if ( !is.null(input$sexMap) && input$sexMap != "") {
+      sexBool <- with(resp, sex %in% input$sexMap)
+    } else {
+      sexBool <- all
+    }
+    sr <- input$fastestMap
+    if (!is.null(sr)) {
+      fastestBool <- with(resp, sr[1] <= fastest & fastest <= sr[2])
+    } else {
+      fastestBool <- all
+    }
+    rv$mapFiltered <- classBool & semesterBool & yearBool & fastestBool & sexBool
+  })
+  
   output$map <- renderLeaflet({
     responses <- rv$responses
+    filt <- rv$mapFiltered
     var <- input$varMap
-    n <- nrow(responses)
-    latitude <- responses$latitude
-    longitude <- responses$longitude
-    info <- paste(responses$name,":  ",responses[,var])
+    marked <- responses[filt, ]
+    latitude <- marked$latitude
+    longitude <- marked$longitude
+    info <- paste(marked$name,":  ",marked[,var])
     m <- leaflet(responses) %>%
       addTiles() %>%
       addMarkers(lat = latitude, lng = longitude, popup = info, 
