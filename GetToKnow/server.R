@@ -176,6 +176,12 @@ function(input, output, session) {
   observe({
     resp <- rv$responses
     all <- rep(TRUE, nrow(resp))
+    if (!is.null(input$nameMap) && input$nameMap != "") {
+      n <- nchar(input$nameMap)
+      className <- with(resp,substr(name, 1, n) == input$nameMap)
+    } else {
+      className <- all
+    }
     if (!is.null(input$classMap)) {
       classBool <- with(resp, class %in% input$classMap)
     } else {
@@ -202,7 +208,7 @@ function(input, output, session) {
     } else {
       fastestBool <- all
     }
-    rv$mapFiltered <- classBool & semesterBool & yearBool & fastestBool & sexBool
+    rv$mapFiltered <- className & classBool & semesterBool & yearBool & fastestBool & sexBool
   })
   
   output$map <- renderLeaflet({

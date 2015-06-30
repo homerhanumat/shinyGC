@@ -118,6 +118,7 @@ tagList(shinyjs::useShinyjs(), shinyjs::inlineCSS(appCSS), navbarPage(
                     choices = surveyVarChoices,selected = "age"),
         helpText("Here are some controls to select who shows up on the map:"),
         # Render the filter controls:
+        textInput("nameMap","Name:"),
         uiOutput("classMap"),
         uiOutput("semesterMap"),
         uiOutput("yearMap"),
