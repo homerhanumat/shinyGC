@@ -289,6 +289,7 @@ function(input, output, session) {
   
   output$summary <- renderTable({
     responses <- rv$responses
+    responses <- responses[rv$graphFiltered, ]
     varName <- input$varSummary
     variable <- responses[,varName]
     responses <- responses[!is.na(variable), ]
