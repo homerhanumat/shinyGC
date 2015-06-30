@@ -134,17 +134,30 @@ tagList(shinyjs::useShinyjs(), shinyjs::inlineCSS(appCSS), navbarPage(
   tabPanel(
     title = "Summary",
     fluidPage(
-      sidebarPanel(
-        selectInput("varSummary", "Variable to Display",
-                    choices = surveyVarChoicesSummary,selected = "age"),
-        actionButton("update2","Update (as others enter data)")
-      ),
-      mainPanel(
+      column(width = 3, 
+              selectInput("varSummary", "Variable to Display",
+                          choices = surveyVarChoicesSummary,selected = "age"),
+              actionButton("update2","Update (as others enter data)")
+        ),
+      column(width = 5,
         plotOutput("graph"),
         tableOutput("summary")
+        ),
+       column(width = 4,
+          helpText("If you like, click on the bars below to filter by sex.",
+                   "Double-click to stop filtering by sex."),
+          HTML("<div style='height: 220px;'>"),
+          plotOutput("sexGraph", click = clickOpts(id = "plot_click"),
+                     dblclick = "plot_dbl_click"),
+          HTML("</div>"),
+          helpText("You may also filter by fastest speed.",
+                    "Brush the your mouse horizontally over the graph below."),
+          plotOutput("fastestGraph", 
+                      brush = brushOpts(id = "plot_brush", fill = "lightblue", 
+                                        direction = "x"))
+          )
       )
-    )
-  ),
+    ),
   tabPanel(
     title = "Responses",
     fluidRow(

@@ -78,7 +78,10 @@ function(input, output, session) {
   
   rv <- reactiveValues(
     responses = responses,
-    mapFiltered = rep(TRUE, nrow(responses))
+    mapFiltered = rep(TRUE, nrow(responses)),
+    graphFiltered = NULL,
+    fastestBoolG = rep(TRUE, nrow(responses)),
+    sexBoolG = rep(TRUE, nrow(responses))
   )
   
   # Enable the Submit button when all mandatory fields are filled out
@@ -168,6 +171,7 @@ function(input, output, session) {
   
   output$fastestMap <- renderUI({
     speeds <- rv$responses$fastest
+    speeds <- speeds[!is.na(speeds)]
     sliderInput(inputId = "fastestMap", label = "Fastest speed driven:",
                 min = min(speeds), max = max(speeds),
                 value = c(min(speeds), max(speeds)))
@@ -226,18 +230,55 @@ function(input, output, session) {
     m
   })
   
+  output$fastestGraph <- renderPlot({
+    df <- rv$responses
+    qplot(x = fastest, data = df, geom = "density") +
+      labs(x = "Fastest speed driven")
+  }, height = 200)
+  
+  output$sexGraph <- renderPlot({
+    df <- rv$responses
+    df <- df[!is.na(df$sex), ]
+      ggplot(aes(x = sex), data = df) + geom_bar(fill = "burlywood") +
+        labs(x = "Sex")
+  }, height = 200)
+  
+  observe({
+    df <- isolate(rv$responses)
+    dfSelected <- invisible(brushedPoints(df,input$plot_brush,
+                                          xvar = "fastest", allRows = TRUE))
+    fastestBoolG <- !dfSelected$selected_
+    levs <- levels(df$sex)
+    if (!is.null(input$plot_click)) {
+      selected <- levs[round(input$plot_click$x)]
+    } else {
+      selected <- levs
+    }
+    sexBoolG <- df$sex %in% selected
+    rv$fastestBoolG <- fastestBoolG
+    rv$sexBoolG <- sexBoolG
+    rv$graphFiltered <- fastestBoolG & sexBoolG
+    })
+  
+  # when user double-clicks on se bar graph, stop filtering by sex
+  observeEvent(input$plot_dbl_click,{
+    rv$graphFiltered <- rv$fastestBoolG
+  })
+  
   output$graph <- renderPlot({
     responses <- rv$responses
-    n <- nrow(responses)
+    responses <- responses[rv$graphFiltered, ]
     varName <- input$varSummary
     variable <- responses[,varName]
+    responses <- responses[!is.na(variable), ]
+    n <- nrow(responses)
     if (is.numeric(variable) && n  >= 3 ) {
       title <- paste0("Density Plot of ",varName)
       return(ggplot(responses, aes_string(x = varName)) +
         geom_density() + geom_rug() +
         labs(title = title, x = labelFinder(varName)))
     } 
-    if ( is.factor(variable) ) {
+    if ( is.factor(variable) && n >= 1 ) {
       title <- paste0("Bar Graph of ",varName)
       return(ggplot(responses, aes_string(x = varName)) +
         geom_bar(fill = "burlywood") + 
@@ -248,9 +289,10 @@ function(input, output, session) {
   
   output$summary <- renderTable({
     responses <- rv$responses
-    n <- nrow(responses)
     varName <- input$varSummary
     variable <- responses[,varName]
+    responses <- responses[!is.na(variable), ]
+    n <- nrow(responses)
     form <- as.formula(paste0("~ ",varName))
     if (is.numeric(variable)) {
       if (n >= 2) {
