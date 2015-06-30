@@ -82,17 +82,17 @@ function(input, output, session) {
   )
   
   # Enable the Submit button when all mandatory fields are filled out
-#   observe({
-#     mandatoryFilled <-
-#       vapply(fieldsMandatory,
-#              function(x) {
-#                !is.null(input[[x]]) && input[[x]] != ""
-#              },
-#              logical(1))
-#     mandatoryFilled <- all(mandatoryFilled)
-#     
-#     shinyjs::toggleState(id = "submit", condition = mandatoryFilled)
-#   })
+  observe({
+    mandatoryFilled <-
+      vapply(fieldsMandatory,
+             function(x) {
+               !is.null(input[[x]]) && input[[x]] != ""
+             },
+             logical(1))
+    mandatoryFilled <- all(mandatoryFilled)
+    
+    shinyjs::toggleState(id = "submit", condition = mandatoryFilled)
+  })
   
   observeEvent(input$submit,{
     location <- geocode(input$address, oneRecord = TRUE)

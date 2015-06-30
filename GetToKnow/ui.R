@@ -42,8 +42,7 @@ surveyVarChoicesSummary <- c("Age" = "age",
                              "Surprising fact" = "surprise"
                              )
 
-navbarPage(
-  # shinyjs::useShinyjs(),
+tagList(shinyjs::useShinyjs(), shinyjs::inlineCSS(appCSS), navbarPage(
   title = "Ice-Breaker Survey",
   tabPanel(
     title = "Survey",
@@ -51,14 +50,15 @@ navbarPage(
       conditionalPanel(
         condition = "input.submit == 0",
         column(width = 6,
-        textInput("name", "Name", ""),
-        textInput("class", "Name of this course", ""),
-      selectInput("semester","Semester", 
-                  choices = c("Fall","Spring","Summer1","Summer2"), selected = ""),
-      selectInput("year", "Year", 
+        textInput("name", labelMandatory("Name"), ""),
+        textInput("class", labelMandatory("Name of this course"), ""),
+      selectInput("semester",labelMandatory("Semester"), 
+                  choices = c("","Fall","Spring","Summer1","Summer2"), selected = ""),
+      selectInput("year", labelMandatory("Year"), 
                   choices = c("",as.character(2015:2020)), selected = ""),
       sliderInput("age", "Your Age", 15, 70, 18, step = 1,ticks = FALSE),
-      textInput("address", "Your Address (type, do not use autofill):", ""),
+      textInput("address", 
+                labelMandatory("Your Address (type, do not use autofill):"), ""),
       selectInput("major", "Intended Major",
                 choices = c("","Accounting","Athletic Training","Art","Biology",
                             "Business",
@@ -155,4 +155,4 @@ navbarPage(
     HTML("<p> </p>"),
     DT::dataTableOutput("responses")
   )
-)
+))
