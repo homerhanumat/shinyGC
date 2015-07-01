@@ -243,8 +243,8 @@ function(input, output, session) {
         labs(x = "Sex")
   }, height = 200)
   
-  observe({
-    df <- isolate(rv$responses)
+  observeEvent(input$plot_brush,{
+    df <- rv$responses
     if (!is.null(input$plot_brush)) {
       dfSelected <- invisible(brushedPoints(df,input$plot_brush,
                                             xvar = "fastest", allRows = TRUE))
@@ -252,28 +252,35 @@ function(input, output, session) {
     } else {
       fastestBoolG <- rep(TRUE, nrow(df))
     }
+    rv$fastestBoolG <- fastestBoolG
+  })
+  
+  observeEvent(input$plot_click,{
+    df <- rv$responses
     levs <- levels(df$sex)
     if (!is.null(input$plot_click)) {
       selected <- levs[round(input$plot_click$x)]
     } else {
       selected <- levs
     }
-    sexBoolG <- df$sex %in% selected
-    rv$fastestBoolG <- fastestBoolG
-    rv$sexBoolG <- sexBoolG
-    rv$graphFiltered <- fastestBoolG & sexBoolG
-    })
+    rv$sexBoolG <- df$sex %in% selected
+  })
   
-  # when user double-clicks on se bar graph, stop filtering by sex
+  # when user double-clicks on the bar graph, stop filtering by sex
   observeEvent(input$plot_dbl_click,{
-    rv$graphFiltered <- rv$fastestBoolG
+    rv$sexBoolG <- rep(TRUE, nrow(rv$responses))
   })
   
   # when user double-clicks on the fastest graph, stop filtering by fastest speed
   # useful only if user has brushed the entire plot, otherwise just clicking
   # will undo
-  observeEvent(input$plot2_dbl_click,{
-    rv$graphFiltered <- rv$sexBoolG
+  observeEvent(input$plot2_click,{
+    rv$fastestBoolG <- rep(TRUE, nrow(rv$responses))
+  })
+  
+  # compute selected
+  observe({
+    rv$graphFiltered <- rv$sexBoolG & rv$fastestBoolG
   })
   
   output$graph <- renderPlot({
@@ -283,11 +290,11 @@ function(input, output, session) {
     varName <- input$varSummary
     variable <- responses[,varName]
     responses <- responses[!is.na(variable), ]
-    var2 <- resp2[, varName]
-    xLow <- min(var2, na.rm = TRUE)
-    xHigh <- max(var2, na.rm = TRUE)
     n <- nrow(responses)
     if (is.numeric(variable) && n  >= 3 ) {
+      var2 <- resp2[, varName]
+      xLow <- min(var2, na.rm = TRUE)
+      xHigh <- max(var2, na.rm = TRUE)
       title <- paste0("Density Plot of ",varName)
       return(ggplot(responses, aes_string(x = varName)) +
         geom_density() + geom_rug() + 

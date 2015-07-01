@@ -150,12 +150,13 @@ tagList(shinyjs::useShinyjs(), shinyjs::inlineCSS(appCSS), navbarPage(
           plotOutput("sexGraph", click = clickOpts(id = "plot_click"),
                      dblclick = "plot_dbl_click"),
           HTML("</div>"),
-          helpText("You may also filter by fastest speed.",
-                    "Brush the your mouse horizontally over the graph below."),
+          helpText("You may also filter by fastest speed by ",
+                    "brushing your mouse horizontally over the graph below.",
+                   "Click outside the brush to stop filtering."),
           plotOutput("fastestGraph", 
                       brush = brushOpts(id = "plot_brush", fill = "lightblue", 
                                         direction = "x"),
-                     dblclick = "plot2_dbl_click")
+                     click = "plot2_click")
           )
       )
     ),
