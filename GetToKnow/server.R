@@ -278,15 +278,20 @@ function(input, output, session) {
   
   output$graph <- renderPlot({
     responses <- rv$responses
+    resp2 <- responses # to determine x-axis limits
     responses <- responses[rv$graphFiltered, ]
     varName <- input$varSummary
     variable <- responses[,varName]
     responses <- responses[!is.na(variable), ]
+    var2 <- resp2[, varName]
+    xLow <- min(var2, na.rm = TRUE)
+    xHigh <- max(var2, na.rm = TRUE)
     n <- nrow(responses)
     if (is.numeric(variable) && n  >= 3 ) {
       title <- paste0("Density Plot of ",varName)
       return(ggplot(responses, aes_string(x = varName)) +
-        geom_density() + geom_rug() +
+        geom_density() + geom_rug() + 
+        scale_x_continuous(limits = c(xLow, xHigh)) +
         labs(title = title, x = labelFinder(varName)))
     } 
     if ( is.factor(variable) && n >= 1 ) {
