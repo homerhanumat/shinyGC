@@ -8,3 +8,5 @@ FindRegLine/rsconnect/
 .DS_Store
 GetToKnow/responses.csv
 GetToKnow/.httr-oauth
+GetToKnow/responses/*
+!GetToKnow/responses/initialResponses.csv

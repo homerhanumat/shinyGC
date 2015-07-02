@@ -1,4 +1,5 @@
 library(ggplot2)
+library(digest)
 library(mosaic)
 library(shiny)
 library(magrittr)
@@ -7,11 +8,52 @@ library(leaflet)
 library(XML)
 library(dismo)
 
-# for markers
+# implement Dean Attali's storage idea
+outputDir <- "responses"
+
+saveData <- function(data) {
+  # Create a unique file name
+  fileName <- sprintf("%s_%s.csv", as.integer(Sys.time()), digest::digest(data))
+  # Write the file to the local system
+  write.csv(
+    x = data,
+    file = file.path(outputDir, fileName), 
+    row.names = FALSE, quote = TRUE
+  )
+}
+
+# for the loadData() function below:  ensure nice appearance of bar graphs
+processVariables <- function(data) {
+  data$major <- factor(data$major)
+  data$seat <- factor(data$seat,levels = c("front","middle","back"))
+  data$love_first <- factor(data$love_first,levels = c("yes","no"))
+  data$extra_life <- factor(data$extra_life,levels = c("yes","no"))
+  data$sex <- factor(data$sex,levels = c("female","male"))
+  data$random <- factor(data$random, levels = as.character(1:10))
+  return(data)
+}
+
+# Dean's loadData() function:
+loadData <- function() {
+  # Note:  to match our initial table of responses we won't transpose data,
+  # as Dean did in his blog article.
+  # Read all the files into a list
+  files <- list.files(outputDir, full.names = TRUE)
+  data <- lapply(files, read.csv, na.strings = c("","NA"),
+                 stringsAsFactors = FALSE) 
+  # Concatenate all data together into one data.frame
+  data <- do.call(rbind, data)
+  data <- processVariables(data)
+  data
+}
+
+# custom map marker:
 iconURL <- "Tiger_head_solo.png"
 
+# mandatory survey fields
 fieldsMandatory <- c("name", "class", "semester","year","address")
 
+# for nice x-axis labels on some graphs
 labelFinder <- function(varName) {
   switch(varName,
          "age" = "Age (in years)",
@@ -28,60 +70,13 @@ labelFinder <- function(varName) {
          )
 }
 
-denVars <- c("age","height","ideal_ht","fastest","sleep")
-barVars <- c("major","seat","love_first","extra_life","sex","random")
+# read in previous responses so user can see mpas, summaries
+# prior to entering his/her own data
+responses <- loadData()
 
-processVariables <- function(data) {
-  data$time <- as.POSIXct(strptime(data$time, format = "%Y-%m-%d %H:%M:%S"))
-  data$major <- factor(data$major)
-  data$seat <- factor(data$seat,levels = c("front","middle","back"))
-  data$love_first <- factor(data$love_first,levels = c("yes","no"))
-  data$extra_life <- factor(data$extra_life,levels = c("yes","no"))
-  data$sex <- factor(data$sex,levels = c("female","male"))
-  data$random <- factor(data$random, levels = as.character(1:10))
-  return(data)
-}
-
-getFile <- function(filename) {
-  df <- read.csv(file = "responses.csv", 
-                        header = TRUE, stringsAsFactors = FALSE,
-                        na.strings = c("NA",""))
-  df <- processVariables(df)
-  return(df)
-}
-
-# read in previous responses
-if (file.exists("responses.csv")) {
-  responses <- getFile("responses.csv")
-} else {
-  address <- "198 Hiawatha Trail, Georgetown KY 40324, USA"
-  location <- geocode(address, oneRecord = TRUE)
-  responses <- data.frame(name = "Homer",
-                          class = NA,
-                          semester = NA,
-                          year = NA,
-                          age = 52,
-                          address = address,
-                          major = "Philosophy",
-                          height = 74.8,
-                          ideal_ht = 74.8,
-                          fastest = 85,
-                          sleep = 7,
-                          seat = "front",
-                          love_first = "yes",
-                          extra_life = "yes",
-                          sex = "male",
-                          random = 4,
-                          surprise = "I read Sanskrit.",
-                          link = "http://statistics.georgetowncollege.edu",
-                          latitude = location$lat,
-                          longitude = location$lon,
-                          time = as.character(Sys.time())
-                        )
-  # may need to fix this:
-  write.csv(responses, file = "responses.csv", row.names = FALSE)
-}
-
+##########################
+## now the server
+###########################
 function(input, output, session) {
   
   rv <- reactiveValues(
@@ -129,26 +124,28 @@ function(input, output, session) {
                            link = input$link,
                            latitude = location$lat + runif(1, min = -0.0001,0.0001),
                            longitude = location$lon + runif(1, min = -0.0001,0.0001),
-                           time = as.character(Sys.time()),
+                           time = Sys.time(),
                            stringsAsFactors = FALSE
     )
-    response2 <- as.vector(response, mode = "character")
-    resp <- as.matrix(t(response2))
-    print(resp)
-    write.table(resp, file = "responses.csv", 
-                append = TRUE, row.names = FALSE, sep = ",",
-                col.names = FALSE)
-    #update rv:
-    rv$responses <- getFile("responses.csv")
+    # this next bit is needed to align new data with the initial data frame:
+    checkVars <- c("major","seat", "love_first","extra_life","random")
+    for ( var in checkVars) {
+      if ( is.null(response[, var]) ) response[, var] <- NA
+    }
+    # That's done.  Now save new data, then update our data frame
+    saveData(response)
+    rv$responses <- loadData()
   })
-  
+ 
+  # this observer allows user to update data from Map, Summary and Responses tabs: 
   observe({
     input$update1
     input$update2
     input$update3
-    rv$responses <- getFile("responses.csv")
+    rv$responses <- loadData()
   })
   
+  # a few dynamically rendered ui's for Map tab:
   output$classMap <- renderUI({
     var <- rv$responses$class
     uni <- unique(var)
@@ -189,6 +186,7 @@ function(input, output, session) {
                 value = c(min(speeds), max(speeds)))
   })
   
+  # handle filtering of displayed variable on the Map tab:
   observe({
     resp <- rv$responses
     all <- rep(TRUE, nrow(resp))
@@ -227,6 +225,7 @@ function(input, output, session) {
     rv$mapFiltered <- className & classBool & semesterBool & yearBool & fastestBool & sexBool
   })
   
+  # the map itself:
   output$map <- renderLeaflet({
     responses <- rv$responses
     filt <- rv$mapFiltered
@@ -242,7 +241,8 @@ function(input, output, session) {
                  icon = list(iconUrl = iconURL, iconSize = c(40,40)))
     m
   })
-  
+
+  # filter controls in the Summary tab:  
   output$fastestGraph <- renderPlot({
     df <- rv$responses
     qplot(x = fastest, data = df, geom = "density") +
@@ -256,6 +256,7 @@ function(input, output, session) {
         labs(x = "Sex")
   }, height = 200)
   
+  # the next few observers handle filtering in the Summary tab:
   observe({
     input$plot_brush
     df <- rv$responses
@@ -300,6 +301,7 @@ function(input, output, session) {
     rv$graphFiltered <- rv$sexBoolG & rv$fastestBoolG
   })
   
+  # the graph os the diplayed variable, in summary tab
   output$graph <- renderPlot({
     responses <- rv$responses
     resp2 <- responses # to determine x-axis limits
@@ -327,6 +329,7 @@ function(input, output, session) {
     }
   })
   
+  # the numerical summary in the summary tab
   output$summary <- renderTable({
     responses <- rv$responses
     responses <- responses[rv$graphFiltered, ]
@@ -351,6 +354,7 @@ function(input, output, session) {
     
   }, include.rownames = FALSE)
   
+  # for Responses tab:
   output$responses <- DT::renderDataTable({
     responses2 <- rv$responses
     responses2$address <- NULL
