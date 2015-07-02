@@ -32,7 +32,7 @@ denVars <- c("age","height","ideal_ht","fastest","sleep")
 barVars <- c("major","seat","love_first","extra_life","sex","random")
 
 processVariables <- function(data) {
-  data$time <- as.POSIXct(data$time)
+  data$time <- as.POSIXct(strptime(data$time, format = "%Y-%m-%d %H:%M:%S"))
   data$major <- factor(data$major)
   data$seat <- factor(data$seat,levels = c("front","middle","back"))
   data$love_first <- factor(data$love_first,levels = c("yes","no"))
@@ -42,10 +42,17 @@ processVariables <- function(data) {
   return(data)
 }
 
+getFile <- function(filename) {
+  df <- read.csv(file = "responses.csv", 
+                        header = TRUE, stringsAsFactors = FALSE,
+                        na.strings = c("NA",""))
+  df <- processVariables(df)
+  return(df)
+}
+
 # read in previous responses
 if (file.exists("responses.csv")) {
-  responses <- read.csv(file = "responses.csv", header = TRUE, stringsAsFactors = FALSE)
-  responses <- processVariables(responses)
+  responses <- getFile("responses.csv")
 } else {
   address <- "198 Hiawatha Trail, Georgetown KY 40324, USA"
   location <- geocode(address, oneRecord = TRUE)
@@ -71,6 +78,7 @@ if (file.exists("responses.csv")) {
                           longitude = location$lon,
                           time = as.character(Sys.time())
                         )
+  # may need to fix this:
   write.csv(responses, file = "responses.csv", row.names = FALSE)
 }
 
@@ -99,7 +107,7 @@ function(input, output, session) {
   
   observeEvent(input$submit,{
     location <- geocode(input$address, oneRecord = TRUE)
-    # create response.  Jitter locations a bit in case two respondent slive at the 
+    # create response.  Jitter locations a bit in case two respondents live at the 
     # same address
     response <- data.frame(name = input$name,
                            class = input$class,
@@ -119,22 +127,26 @@ function(input, output, session) {
                            random = input$random,
                            surprise = input$surprise,
                            link = input$link,
-                           time = as.character(Sys.time()),
                            latitude = location$lat + runif(1, min = -0.0001,0.0001),
-                           longitude = location$lon + runif(1, min = -0.0001,0.0001)
+                           longitude = location$lon + runif(1, min = -0.0001,0.0001),
+                           time = as.character(Sys.time()),
+                           stringsAsFactors = FALSE
     )
+    response2 <- as.vector(response, mode = "character")
+    resp <- as.matrix(t(response2))
+    print(resp)
+    write.table(resp, file = "responses.csv", 
+                append = TRUE, row.names = FALSE, sep = ",",
+                col.names = FALSE)
     #update rv:
-    rv$responses <- rbind(rv$responses, response)
-    # write to file:
-    write.table(rv$responses, file = "responses.csv", row.names = FALSE, sep = ",")
+    rv$responses <- getFile("responses.csv")
   })
   
   observe({
     input$update1
     input$update2
     input$update3
-    temp <- read.csv(file = "responses.csv", header = TRUE, stringsAsFactors = FALSE)
-    rv$responses <- processVariables(temp)
+    rv$responses <- getFile("responses.csv")
   })
   
   output$classMap <- renderUI({
@@ -220,10 +232,11 @@ function(input, output, session) {
     filt <- rv$mapFiltered
     var <- input$varMap
     marked <- responses[filt, ]
+    marked <- marked[!(is.na(marked$latitude)), ]
     latitude <- marked$latitude
     longitude <- marked$longitude
     info <- paste(marked$name,":  ",marked[,var])
-    m <- leaflet(responses) %>%
+    m <- leaflet(marked) %>%
       addTiles() %>%
       addMarkers(lat = latitude, lng = longitude, popup = info, 
                  icon = list(iconUrl = iconURL, iconSize = c(40,40)))
@@ -243,7 +256,8 @@ function(input, output, session) {
         labs(x = "Sex")
   }, height = 200)
   
-  observeEvent(input$plot_brush,{
+  observe({
+    input$plot_brush
     df <- rv$responses
     if (!is.null(input$plot_brush)) {
       dfSelected <- invisible(brushedPoints(df,input$plot_brush,
@@ -255,7 +269,8 @@ function(input, output, session) {
     rv$fastestBoolG <- fastestBoolG
   })
   
-  observeEvent(input$plot_click,{
+  observe({
+    input$plot_click
     df <- rv$responses
     levs <- levels(df$sex)
     if (!is.null(input$plot_click)) {
@@ -267,14 +282,16 @@ function(input, output, session) {
   })
   
   # when user double-clicks on the bar graph, stop filtering by sex
-  observeEvent(input$plot_dbl_click,{
+  observe({
+    input$plot_dbl_click
     rv$sexBoolG <- rep(TRUE, nrow(rv$responses))
   })
   
   # when user double-clicks on the fastest graph, stop filtering by fastest speed
   # useful only if user has brushed the entire plot, otherwise just clicking
   # will undo
-  observeEvent(input$plot2_click,{
+  observe({
+    input$plot2_click
     rv$fastestBoolG <- rep(TRUE, nrow(rv$responses))
   })
   
