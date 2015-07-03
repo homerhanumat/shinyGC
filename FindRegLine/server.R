@@ -2,6 +2,31 @@ library(shiny)
 library(magrittr)
 library(DT)
 
+# implement dean attali's local storage suggestion:
+outputDir <- "scores"
+
+saveData <- function(data) {
+  # Create a unique file name
+  fileName <- sprintf("%s_%s.csv", as.integer(Sys.time()), digest::digest(data))
+  # Write the file to the local system
+  write.csv(
+    x = data,
+    file = file.path(outputDir, fileName), 
+    row.names = FALSE, quote = TRUE
+  )
+}
+
+loadData <- function() {
+  # Note:  function returns NULL if no scores yet
+  # Read all the files into a list
+  files <- list.files(outputDir, full.names = TRUE)
+  data <- lapply(files, read.csv, na.strings = c("","NA"),
+                 stringsAsFactors = FALSE) 
+  # Concatenate all data together into one data.frame
+  data <- do.call(rbind, data)
+  data
+}
+
 
 # bounds for intercept
 lowa <- -5
@@ -15,15 +40,10 @@ n <- 10 # number of points in in cloud
 x <- 1:10 # x-values
 
 # read in players records
-if (file.exists("leaders.csv")) {
-  leaders <- read.csv(file = "leaders.csv", header = TRUE, stringsAsFactors = FALSE)
-  leaders$time <- as.POSIXct(leaders$time)
-  leaders$rank <- order(leaders$score)
-} else {
-    leaders <- data.frame(name = "Nortius Maximus", score = 250,
-                               time = "0033-04-15 12:00:21 EDT")
-    write.csv(leaders, file = "leaders.csv", row.names = FALSE)
-  }
+scoreCount <- length(list.files(outputDir))
+if ( scoreCount > 0 ) {
+  leaders <- loadData()
+  } else leaders <- data.frame()
 
 # Define server logic for FindRegLine
 function(input, output, session) {
@@ -35,7 +55,8 @@ function(input, output, session) {
   rv <- reactiveValues(
     beginning = TRUE,
     playing = FALSE,
-    reporting = FALSE
+    reporting = FALSE,
+    leaders = leaders
   )
   
   #set up:
@@ -101,10 +122,10 @@ function(input, output, session) {
   
   observeEvent(input$updateBoard,
                {
-                  leaders <<- read.csv(file = "leaders.csv", 
-                                    header = TRUE, stringsAsFactors = FALSE)
-                  leaders$time <<- as.POSIXct(leaders$time)
-                  leaders$rank <<- order(leaders$score)
+                  temp <- loadData()
+                  if (! is.null(temp)) {
+                    rv$leaders <- temp
+                    } else rv$leaders <- data.frame()
                }
                )
   
@@ -124,26 +145,34 @@ function(input, output, session) {
                  rv$reporting <- TRUE
                  rv$playing <- FALSE
                  if (input$player != "") {
-                   # update the leader board in case others are playing.
-                   # get the latest data:
-                   leaders <<- read.csv(file = "leaders.csv", 
-                                        header = TRUE, stringsAsFactors = FALSE)
-                   # sort it:
-                   leaders <<- leaders[order(leaders$score),]
                    # make record for the game just ended
                    name <- input$player
                    lastScore <- score
-                   time <- as.character(Sys.time())
-                   # compute rank
-                   rank <- max(which(lastScore >= leaders$score))
-                   if (!is.infinite(rank)) {
-                     player_rank <<- rank + 1
-                   } else player_rank <<- 1
+                   time <- Sys.time()
+                   # update the leader board in case others are playing.
+                   # first, get the latest data:
+                   leaders <- loadData()
+                   # compute rank of player:
+                   if ( is.null(leaders) ) rank <- 1
+                   if ( ! is.null(leaders) ) {
+                     # sort it:
+                     leaders <- leaders[order(leaders$score),]
+                     leScore <- max(which(lastScore >= leaders$score))
+                     # the above will return -Inf if our player has best score
+                     if (!is.infinite(leScore)) {
+                      rank <- leScore + 1
+                      } else {
+                        rank <- 1
+                      }
+                     }
+                   # store rank for reporting:
+                   player_rank <<- rank
                    # add this game to the board
-                   game <- as.matrix(t(c(name, lastScore, time)))
-                   write.table(game, file = "leaders.csv", 
-                             append = TRUE, row.names = FALSE, sep = ",",
-                             col.names = FALSE)
+                   game <- data.frame(name = name, score = lastScore, 
+                                      time = time)
+                   saveData(game)
+                   # update board so user will see his/her name right away:
+                   rv$leaders <- loadData()
                  }
                })
   
@@ -218,6 +247,8 @@ function(input, output, session) {
  
  output$finalcloud <- renderPlot({
    input$enditall
+   ymin <- rvGraph$ymin
+   ymax <- rvGraph$ymax
    plot(x,y,pch=16,col="blue",ylim=c(ymin,ymax),
         xlim=c(0,n))
    points(0,0,cex=0.8,pch=16,col="green")
@@ -242,7 +273,7 @@ function(input, output, session) {
  
  output$rank <- reactive({
    input$enditall
-   paste0("<h3>Your rank for this game is: ", player_rank,".</h3>")
+   paste0("<h3>Your rank for this game is: ", player_rank,"</h3>")
  })
 
 # before DT: 
@@ -258,24 +289,28 @@ function(input, output, session) {
  
 # try with DT
  
-  observe({
-    input$enditall
-    input$updateBoard
-    temp <- read.csv(file = "leaders.csv", 
-                     header = TRUE, stringsAsFactors = FALSE)
-    leaders <<- temp[order(temp$score), ]
-    leaders$time <<- as.POSIXct(leaders$time)
-    leaders$rank <<- order(leaders$score)
+  observeEvent(input$updateBoard, {
+    if ( ! rv$beginning ) {
+      temp <- loadData()
+      if ( ! is.null(temp) ) {
+        rv$leaders <- temp[order(temp$score), ]
+        }
+      }
   })
   
-  output$leaders <- DT::renderDataTable(
-    datatable(leaders, rownames = FALSE, 
-              caption = "Here is the Leader Board:",
-              filter = "bottom") %>%
-      formatStyle(
-        'name',
-        backgroundColor = styleEqual(input$player, 'lightblue'))
-  )
+  output$leaders <- DT::renderDataTable({
+    leaders <- rv$leaders
+    if ( nrow(leaders ) > 0 ) {
+      leaders <- leaders[order(leaders$score), ]
+      leaders$rank <- 1:nrow(leaders)
+      datatable(leaders, rownames = FALSE, 
+                caption = "Here is the Leader Board:",
+                filter = "bottom") %>%
+        formatStyle(
+          'name',
+          backgroundColor = styleEqual(input$player, 'lightblue'))
+      }
+  })
  
  output$revelation <- renderTable({
    if (input$enditall > 0) {
@@ -286,6 +321,18 @@ function(input, output, session) {
      tab
      }
  })
+ 
+ output$downloadData <- downloadHandler(
+   filename = function() {
+     "leaderboard.csv"
+   },
+   content = function(file) {
+     sep <- ","
+     # Write to a file specified by the 'file' argument
+     write.table(leaders, file, sep = sep,
+                 row.names = FALSE)
+   }
+ )
   
 }
 

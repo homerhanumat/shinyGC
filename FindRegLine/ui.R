@@ -65,7 +65,12 @@ navbarPage(
   ),
   tabPanel(
     title = "Leader Board",
-    actionButton("updateBoard", "Update the Board (as others play)"),
+    fluidRow(
+      column(width = 3,
+             actionButton("updateBoard", "Update (as others play)")),
+      column(width = 3,
+             downloadButton('downloadData', 'Download'))
+    ),
     HTML("<p> </p>"),
     DT::dataTableOutput("leaders")
   ),
