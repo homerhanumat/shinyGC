@@ -4,6 +4,7 @@ library(DT)
 
 # implement dean attali's local storage suggestion:
 outputDir <- "scores"
+dir.create(outputDir, showWarnings = FALSE)
 
 saveData <- function(data) {
   # Create a unique file name
