@@ -49,7 +49,7 @@ tagList(shinyjs::useShinyjs(), shinyjs::inlineCSS(appCSS), navbarPage(
     fluidPage(
       conditionalPanel(
         condition = "input.submit == 0",
-        column(width = 6,
+        column(width = 5,
         textInput("name", labelMandatory("Name"), ""),
         textInput("class", labelMandatory("Name of this course"), ""),
       selectInput("semester",labelMandatory("Semester"), 
@@ -85,7 +85,7 @@ tagList(shinyjs::useShinyjs(), shinyjs::inlineCSS(appCSS), navbarPage(
       sliderInput("ideal_ht","Your ideal height (in inches)",53,84,66,
                 step = 0.5,ticks = FALSE)
     ),
-    column(width = 6,
+    column(width = 7,
       selectInput("seat","Where you prefer to sit in a classroom:",
                   choices = c("","front","middle","back"),
                   selected = ""),
@@ -94,8 +94,8 @@ tagList(shinyjs::useShinyjs(), shinyjs::inlineCSS(appCSS), navbarPage(
       selectInput("extra_life","Do you believe in extraterrestrial life?",
                   choices = c("","yes","no"), selected = ""),
       selectInput("sex","I am a:",choices = c("","female","male"), selected = ""),
-      selectInput("random", "Pick one of these numbers at random:",
-                  choices = c("",as.character(1:10)), selected = ""),
+      radioButtons("random", "Pick one of these numbers at random:",
+                  choices = c("",as.character(1:10)), selected = "", inline = TRUE),
       textInput("link","URL of a favorite website:","http://google.com"),
       textInput("surprise","A Surprising fact about me:","I have no surprises"),
       sliderInput("fastest","Fastest speed you ever drove a car (in mph)",0,200,70,
