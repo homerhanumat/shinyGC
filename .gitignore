@@ -10,4 +10,3 @@ GetToKnow/responses.csv
 GetToKnow/.httr-oauth
 GetToKnow/responses/*
 !GetToKnow/responses/initialResponses.csv
-FindRegLine/scores/*
