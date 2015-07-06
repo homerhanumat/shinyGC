@@ -1,12 +1,12 @@
 {
-    "contents" : "pitch_cimean\n========================================================\nauthor: \ndate: \n\nFirst Slide\n========================================================\n\nFor more details on authoring R presentations click the\n**Help** button on the toolbar.\n\n- Bullet 1\n- Bullet 2\n- Bullet 3\n\nSlide With Code\n========================================================\n\n```{r}\nsummary(cars)\n```\n\nSlide With Plot\n========================================================\n\n```{r, echo=FALSE}\nplot(cars)\n```\n",
+    "contents" : "The CIMean Shiny App\n========================================================\nauthor: Homer White\ndate: July 6, 2015\ntransition:  rotate\n\n```{r include = FALSE}\nlibrary(tigerstats)\n```\n\n\nConfidence Intervals\n========================================================\n\nStatistics students make confidence intervals all the time:\n\n```{r}\nlibrary(tigerstats)\nttestGC(fastest~sex, data = m111survey, \n        conf.level = 0.95, verbose = FALSE)\n```\n\n\nBut ...\n========================================================\ntype:  alert\nincremental:  true\n\n* They have trouble explaining what the \"level of confidence\" means.\n* They also don't understand the conditions under which the actual level of confidence might differ significantly from the nominal \"desired\" level.\n\nThe CIMean Shiny App\n========================================================\n\nThe CIMean Shiny app (click <a href = \"http://homer.shinyapps.io/CIMean\" target = \"_blank\">here</a> to view), aims to help them out by exploring t-interval for the mean of a population.  Students can:\n\n* choose from four different populations (two of which are quite pathological)\n* choose a sample size\n* choose a nominal level of confidence\n\nThey can also have the app take a designated number of samples at once.\n\n* Taking one sample at a time helps reinforce the distinction between sample and population.\n* Taking many samples gives a good estimate of the actual level of confidence.\n\nOther Features\n=====================\nincremental:  true\n\n* A separate tab takes fifty samples at a time.  This helps students get a feel for situations in which the intervals are liable to miss on a particular \"side\" of the mean.\n* A third tab compares the theoretical t-curve with the a data-based estimate of the actual distribution of the t-statistic used to construct t-intervals.  This helps students understand the effect of departures from model assumptions.\n* A fourth tab reminds students of confidence interval principles and explains how to use the app.\n\n\n",
     "created" : 1436201635712.000,
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "1388551031",
+    "hash" : "2238691300",
     "id" : "756369F0",
-    "lastKnownWriteTime" : 1436201635,
+    "lastKnownWriteTime" : 1436203845,
     "path" : "~/git/shinyGC/pitch_cimean.Rpres",
     "project_path" : "pitch_cimean.Rpres",
     "properties" : {
