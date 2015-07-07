@@ -3,4 +3,9 @@ title: "About the Project"
 output: html_document
 ---
 
-This app was written by Homer White:  <http://github.com/homerhanumat>.  It's part of a tutorial (PROVIDE LINK) for [Project MOSAIC](http://mosaic-web.org/).
+This app was written by Homer White:  <http://github.com/homerhanumat>.  It features in a tutorial that I wrote on developing simulation apps in Shiny.  The tutorial is in the form of an interactive R Markdown document.  If you would like to view it, simply clone my repo:
+
+><a href = "http://github.com/homerhanumat/shinyTutorials" target = "_blank">http://github.com/homerhanumat/shinyTutorials</a>
+
+
+into your own computer, locate the (awkwardly-named) file `sim_tutorial_Rmd/tutorial_sim.Rmd`, open it in R Studio and click Run Document.
