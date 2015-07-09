@@ -32,7 +32,7 @@ incremental:  true
 The CIMean Shiny App
 ========================================================
 
-The CIMean Shiny app (click <a href = "http://homer.shinyapps.io/CIMean" target = "_blank">here</a> to view), aims to help them out by exploring t-interval for the mean of a population.  Students can:
+The CIMean Shiny app (click <a href = "http://homer.shinyapps.io/CIMean" target = "_blank">here</a> to view), aims to help them explore t-intervals for a population mean.  Students can:
 
 * choose from four different populations (two of which are quite pathological)
 * choose a sample size
@@ -47,8 +47,11 @@ Other Features
 =====================
 incremental:  true
 
-* A separate tab takes fifty samples at a time.  This helps students get a feel for situations in which the intervals are liable to miss on a particular "side" of the mean.
-* A third tab compares the theoretical t-curve with the a data-based estimate of the actual distribution of the t-statistic used to construct t-intervals.  This helps students understand the effect of departures from model assumptions.
-* A fourth tab reminds students of confidence interval principles and explains how to use the app.
+In another panel the student can compare the theoretical t-curve with the an estimate, based on the simulation data, of the *actual* distribution of the t-statistic that is used to construct t-intervals.  This helps students understand the effect of departures from model assumptions.
+
+There are two other tabs in the Navbar:
+
+* The second tab takes fifty samples at a time.  This helps students get a feel for situations in which the intervals are liable to miss on a particular "side" of the mean.
+* A third tab contains two HTML documents, one of which is a Help document that reminds students of confidence interval principles and offers suggestions for use of the app.
 
 
