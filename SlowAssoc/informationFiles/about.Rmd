@@ -1,0 +1,101 @@
+---
+title: "About this Application"
+author: "Homer White"
+date: "July 17, 2015"
+output:
+  html_document:
+    theme: null
+---
+
+```{r include = FALSE}
+library(knitr)
+```
+
+
+## Overview
+
+This application introduces students to concepts in inferential statistics, in the context of a $\chi^2$-test for association between two variables.  The distribution of the $\chi^2$-statistic is approximated by simulation, but students also have the option to view a chi-square curve that may also provide a good approximation to the distribution of the chi-square statistic.
+
+## The Default Data
+
+The app opens with a contingency table drawn from L. Mann's 1981 study *The baiting crowd in episodes of threatened suicide*, published in Volume 41 of the **Journal of Personality and Social Psychology** (pages 703-709).  Mann was interested in factors that affect the behavior of the crowds that gather when a suicidal person is threatening to jump from a ledge or other high structure.  For 21 such incidents in Great Britain, Mann was able to gather information as to the weather at the time of the incident (classified as **warm** or **cool** based on the month in which the incident occurred) and the behavior of the crowd (either **polite** or **baiting** the would-be jumper).  The result was our default table:
+
+<hr>
+
+```{r echo = FALSE}
+wcb <- matrix(c(2,8,7,4), nrow = 2)
+rownames(wcb) <- c("cool", "warm")
+colnames(wcb) <- c("baiting", "polite")
+kable(wcb)
+```
+
+<hr>
+
+Of course you can ignore the default table and enter any contingency table that you like, up to a limit of five rows and five columns.  The larger the number of rows (resp. columns), the shorter your row names (resp. column names) should be if you want graphs and summary tables to look good.
+
+## Resampling Methods
+
+Several re-sampling methods are available to you.
+
+### "row/col sums fixed"
+
+This is the most commonly-used re-sampling method when contingency tables are involved.  For each re-sample, the computer generates a two-way table randomly, but under the constraint that the row sums and column sums of the generated table must be **the same** as the row sums and column sums of the table that was made form the original data.
+
+This is generally thought to be the correct method to use when your data come from a randomized experiment.  For example, suppose that the rows indicate treatment groups in an experiment, and subjects were randomly assigned to groups.  The columns would then indicate the possible values of the response variable observed for each subject.  The "row/col fixed" re-sampling option is equivalent to re-running the random assignment of subjects to treatment groups, under the assumption of a Null Hypothesis that for each subject the value of the response variable is the same no matter which treatment group the subject is assigned to.
+
+### "row sums fixed"
+
+Sometimes you are in a situation where group sizes are fixed (thus fixing either the sums for one of the dimensions of your table) but the outcome for the members of each group depends on chance in such a way that the sums for the other dimension are not fixed in advance.
+
+The default data are an example of this.  Presumably the 21 ledge-jumping incidents to which Mann had access are not a random sample from some larger "population" of incidents.  If these were the only 21 incidents available for study, then the time of year at which each incident occurred is not subject to chance variation (at least not in a way that could be modeled plausibly) and so should be considered fixed.  In our models, chance comes into play in the *outcome* of each incident (i.e., the behavior of the crowd).
+
+For example, one might define two  probabilities:
+
+* $p_1 = P(\text{crowd baits } \vert \text{ cool weather})$
+* $p_2 = P(\text{crowd baits } \vert \text{ warm weather})$
+
+If weather and crowd behavior are unrelated, then we have the Null Hypothesis that $p_1 = p_2.$
+
+Under this assumption, the best data-based estimate of the common probability $p$ of a baiting crowd would be the observed proportion of incidents in which the crowd baited, namely:
+
+$$\hat{p} = \frac{10}{21}.$$
+
+From this one can compute an two-way table that a believer in the Null Hypothesis would expect to see:
+
+<hr>
+row/col | baiting | polite
+--- | --- | ---
+cool | $\frac{9 \times 10}{21} = 4.286$ | $\frac{9 \times 11}{21} = 4.714$
+warm | $\frac{12 \times 10}{21} = 5.714$ | $\frac{12 \times 11}{21} = 6.286$
+<hr>
+
+Note that this reduces to the table expected counts that is used in the computation of the $\chi^2$-statistic.
+
+In row-fixed re-sampling, each row of a randomly-generated table is determined as a multinomial random variable where the size parameter is the observed row sum and the probabilities are given by the observed columns sums divided by the grand total of the observed table.  Thus in our default example, the generated rows are:
+
+* **Row 1**:  binomial with 9 trials, with chance of success on each trial being 10/21.
+* **Row 2**:  binomial with 12 trials, with chance of success on each trial being 10/21.
+
+For each randomly-generated table, the expected cell counts are computed using that table (not the original observed table) and a chi-square statistic is computed form the re-sampled table and expected table in the usual way.
+
+There is a long-standing debate about as to which method --- row-fixed or row/col-fixed --- is best in this situation.  I include the row-fixed method as an option since it corresponds closely to how we model chance in studies like the ledge-jumping example, and therefore might make more sense to beginning students.
+
+## "neither fixed"
+
+This option might make sense to students in a situation where in the original data neither the row nor the column sums were fixed in advance.  Such a situation might occur when one is sampling randomly form a population and recording the values of two factor variables.  Fro example, consider the results of a survey on sex and seating preference at a small liberal arts college:
+
+<hr>
+
+```{r echo = FALSE}
+sexSeat <- matrix(c(19,8,16,16,5,7), nrow = 2)
+rownames(sexSeat) <- c("female", "male")
+colnames(sexSeat) <- c("front","mid","back")
+kable(sexSeat)
+```
+
+<hr>
+If you regard the sample as having been drawn randomly from some larger population,then neither the number of females and males in the study nor the number of people preferring each seating position are fixed in advance.  Hence it might make sense for beginning students to re-sample in such a way that neither row nor column totals of randomly-generated tables are fixed, but rather the cell counts are a a multinomial random variable with size equal to the observe grand total and probabilities determined by the proportion of counts observed in each cell.  The "neither fixed" re-sampling option implements this idea.  (Again, expected cunts are computed afresh with each randomly-generated table).
+
+For large sample sizes, all three methods amount to the same thing (and deliver the same results as using a chi-square curve with degrees of freedom computed in the usual way).  For small sample sizes, there is some indication that the "neither fixed" option is lacking somewhat in power in comparison to the standard "row/col fixed"method.  Again, we provide the option only in classes where students want naive re-sampling schemes that correspond closely to the way that they believe chance variation figured into the collection of the original data.
+
+

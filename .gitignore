@@ -5,6 +5,7 @@
 */rsconnect
 */shinyapps
 FindRegLine/rsconnect/
+SlowAssoc/rsconnect
 .DS_Store
 GetToKnow/responses.csv
 GetToKnow/.httr-oauth
