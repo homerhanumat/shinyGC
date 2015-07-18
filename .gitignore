@@ -12,3 +12,4 @@ GetToKnow/.httr-oauth
 GetToKnow/responses/*
 !GetToKnow/responses/initialResponses.csv
 FindRegLine/scores
+README.html
