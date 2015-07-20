@@ -1,4 +1,5 @@
 library(shiny)
+library(shinythemes)
 library(rhandsontable)
 
 # no more than this many sims at any one time
@@ -6,6 +7,7 @@ simLimit <- 10000
 
 navbarPage(
   title = "Chi-Square Test for Association",
+  theme = shinytheme("cerulean"),
   tabPanel(
     title = "The Test",
 fluidPage(

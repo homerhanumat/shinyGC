@@ -26,7 +26,7 @@ The app opens with a contingency table drawn from L. Mann's 1981 study *The bait
 wcb <- matrix(c(2,8,7,4), nrow = 2)
 rownames(wcb) <- c("cool", "warm")
 colnames(wcb) <- c("baiting", "polite")
-kable(wcb)
+kable(wcb, caption = "Weather/Behavior")
 ```
 
 <hr>
@@ -82,15 +82,16 @@ There is a long-standing debate about as to which method --- row-fixed or row/co
 
 ## "neither fixed"
 
-This option might make sense to students in a situation where in the original data neither the row nor the column sums were fixed in advance.  Such a situation might occur when one is sampling randomly form a population and recording the values of two factor variables.  Fro example, consider the results of a survey on sex and seating preference at a small liberal arts college:
+This option might make sense to students in a situation where in the original data neither the row nor the column sums were fixed in advance.  Such a situation might occur when one is sampling randomly from a population and recording the values of two factor variables.  For example, consider the results of a survey on sex and seating preference at a small liberal arts college:
 
 <hr>
 
 ```{r echo = FALSE}
 sexSeat <- matrix(c(19,8,16,16,5,7), nrow = 2)
 rownames(sexSeat) <- c("female", "male")
-colnames(sexSeat) <- c("front","mid","back")
-kable(sexSeat)
+colnames(sexSeat) <- c("front","middle","back")
+kable(sexSeat, col.names = c("front","middle","back"),
+      caption = "Sex and Seating Preference", padding = 3)
 ```
 
 <hr>
