@@ -159,3 +159,9 @@ chisqGraph <- function(bound,region="above",df=NA,xlab="chi_square_statistic",gr
   
   
 }#end of chisqGraph
+
+###############################
+## some nice colors for bar plots
+###############################
+
+myColors <- c("#f1595f","#79c36a","#599ad3","#f9a65a","#727272")

@@ -151,6 +151,7 @@ shinyServer(function(input, output, session) {
     observed <- rv$DF
     obsMat <- as.matrix(rv$DF)
     expected <- expCounts(observed)
+    numberCols <- length(names(rv$DF))
     par(mfrow=c(1,2))
     if (input$barmosInit == "mosaic") {
       mosaicplot(t(observed),col="orange",main="Observed Table",cex.axis=1.3)
@@ -158,10 +159,10 @@ shinyServer(function(input, output, session) {
     } else {
         barplot(t(obsMat), beside = TRUE,
                 legend.text = names(observed), cex.axis = 1.3,
-                main = "Observed Table")
+                col = myColors[1:numberCols], main = "Observed Table")
         barplot(t(expected), beside = TRUE,
                 legend.text = names(observed), cex.axis = 1.3,
-                main = "Expected Table")
+                col = myColors[1:numberCols], main = "Expected Table")
       }
     par(mfrow=c(1,1))
   })
@@ -188,6 +189,7 @@ shinyServer(function(input, output, session) {
       latest_table <- rv$latestTable
       latest_table <- as.matrix(latest_table)
       expected <- expCounts(latest_table)
+      numberCols <- length(names(rv$DF))
       par(mfrow=c(1,2))
       if (input$barmosLatest == "mosaic") {
         mosaicplot(t(latest_table),col="blue",main="Simulated Table",
@@ -197,10 +199,10 @@ shinyServer(function(input, output, session) {
       } else {
         barplot(t(latest_table), beside = TRUE,
                 legend.text = names(rv$DF), cex.axis = 1.3,
-                main = "Simulated Table")
+                col = myColors[1:numberCols], main = "Simulated Table")
         barplot(t(expected), beside = TRUE,
                 legend.text = names(rv$DF), cex.axis = 1.3,
-                main = expTitle)
+                col = myColors[1:numberCols], main = expTitle)
         }
       par(mfrow=c(1,1))
     }
