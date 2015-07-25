@@ -61,11 +61,13 @@ shinyServer(function(input, output, session) {
   
   observe({
     chisqSims <- rv$chisqSims
-    n <- length(chisqSims)
-    if ( n == 1 ) band <- 1 else band <- "nrd0"
-    if ( n >= 1 ) {
-      rv$chisqDensities <- density(chisqSims,n=500,
+    if ( ! is.null(chisqSims) ) {
+      n <- length(chisqSims)
+      if ( n == 1 ) band <- 1 else band <- "nrd0"
+      if ( n >= 1 ) {
+        rv$chisqDensities <- density(chisqSims,n=500,
                                    from=0,to=rv$xmax,bw=band)
+      }
     }
   })
   
@@ -79,15 +81,12 @@ shinyServer(function(input, output, session) {
   })
   
   observeEvent(input$newTable,{
-    rv$DF <- NULL
     rv$state <- 'tableSetup'
     rv$chisqSims <- NULL
     rv$chisqDensities <- NULL
     rv$latestTable <- NULL
     rv$latestSim <- NULL
     numberSims <- 0
-    rv$df <- NULL
-    rv$xmax <- NULL
   })
   
   observe({
@@ -135,50 +134,62 @@ shinyServer(function(input, output, session) {
   })
   
   output$remarksInitial <- renderText({
-    paste("Observed chi-square statistic =  ",
-          as.character(round(chisqStat(rv$DF),2)),sep="")
+    if ( ! is.null(rv$DF) ) {
+      paste("Observed chi-square statistic =  ",
+            as.character(round(chisqStat(rv$DF),2)),sep="")
+    }
   })
   
   output$obsTable <- renderTable({
-    rv$DF
+    if ( ! is.null(rv$DF) ) {
+      rv$DF
+    }
   }, include.rownames = TRUE)
   
   output$expTable <- renderTable({
-    expCounts(rv$DF)
+    if ( ! is.null(rv$DF) ) {
+      expCounts(rv$DF)
+    }
   }, include.rownames = TRUE)
   
   output$mosaicInitial <- renderPlot({
-    observed <- rv$DF
-    obsMat <- as.matrix(rv$DF)
-    expected <- expCounts(observed)
-    numberCols <- length(names(rv$DF))
-    par(mfrow=c(1,2))
-    if (input$barmosInit == "mosaic") {
-      mosaicplot(t(observed),col="orange",main="Observed Table",cex.axis=1.3)
-      mosaicplot(t(expected),col="grey",main="Expected Table",cex.axis=1.3)
-    } else {
-        barplot(t(obsMat), beside = TRUE,
-                legend.text = names(observed), cex.axis = 1.3,
-                col = myColors[1:numberCols], main = "Observed Table")
-        barplot(t(expected), beside = TRUE,
-                legend.text = names(observed), cex.axis = 1.3,
-                col = myColors[1:numberCols], main = "Expected Table")
-      }
-    par(mfrow=c(1,1))
+    if ( ! is.null(rv$DF) ) {
+      observed <- rv$DF
+      obsMat <- as.matrix(rv$DF)
+      expected <- expCounts(observed)
+      numberCols <- length(names(rv$DF))
+      par(mfrow=c(1,2))
+      if (input$barmosInit == "mosaic") {
+        mosaicplot(t(observed),col="orange",main="Observed Table",cex.axis=1.3)
+        mosaicplot(t(expected),col="grey",main="Expected Table",cex.axis=1.3)
+      } else {
+          barplot(t(obsMat), beside = TRUE,
+                  legend.text = names(observed), cex.axis = 1.3,
+                  col = myColors[1:numberCols], main = "Observed Table")
+          barplot(t(expected), beside = TRUE,
+                  legend.text = names(observed), cex.axis = 1.3,
+                  col = myColors[1:numberCols], main = "Expected Table")
+        }
+      par(mfrow=c(1,1))
+    }
   })
   
   output$contrTable <- renderTable({
-    observed <- rv$DF
-    (observed-expCounts(observed))^2/expCounts(observed)
+    if ( ! is.null(rv$DF) ) {
+      observed <- rv$DF
+      (observed-expCounts(observed))^2/expCounts(observed)
+    }
   })
   
   output$remarksLatest1 <- renderText({
-    chisqSims <- rv$chisqSims
-    obschisq <- chisqStat(rv$DF)
-    rounded1 <- round(obschisq,2)
-    rounded2 <- round(chisqSims[length(chisqSims)],2)
-    paste("Observed chi-square =  ",as.character(rounded1),
-          ",\n Last resampled chi-square = ",as.character(rounded2),sep="")
+    if ( ! is.null(rv$chisqSims) ) {
+      chisqSims <- rv$chisqSims
+      obschisq <- chisqStat(rv$DF)
+      rounded1 <- round(obschisq,2)
+      rounded2 <- round(chisqSims[length(chisqSims)],2)
+      paste("Observed chi-square =  ",as.character(rounded1),
+            ",\n Last resampled chi-square = ",as.character(rounded2),sep="")
+    }
   })
   
   output$mosaicLatest <- renderPlot({
@@ -241,49 +252,56 @@ shinyServer(function(input, output, session) {
   }, include.rownames = FALSE)
   
   output$remarksProbBar <- renderText({
-    obs <- chisqStat(rv$DF)
-    paste0("The percentage in the table gives the approximate probability, based on our resamples so far, of getting a chi-square statistic of ",
-           round(obs,2)," or more, if the Null Hypothesis (no relationship between the two factor",
-           " variables under study) is true. The more resamples you take the better these",
-           "approximations will be!")
+    if ( ! is.null(rv$DF) ) {
+      obs <- chisqStat(rv$DF)
+      paste0("The percentage in the table gives the approximate probability, based on our resamples so far, of getting a chi-square statistic of ",
+            round(obs,2)," or more, if the Null Hypothesis (no relationship between the two factor",
+            " variables under study) is true. The more resamples you take the better these",
+            "approximations will be!")
+    }
   })
   
   output$summary2 <- renderTable({
-    chisqSims <- rv$chisqSims
-    obs <- chisqStat(rv$DF)
-    n <- length(chisqSims)
-    latest <- chisqSims[n]
-    p.value <- length(chisqSims[chisqSims>=obs])/n
-    percentage <- paste(as.character(round(p.value*100,2)),"%",sep="")
-    df <- data.frame(round(latest,2),n,percentage)
-    names(df) <- c("Last Resampled Chi-Square",
-                   "Number of Resamples So Far",
-                   paste("Percent Above ",round(obs,2),sep="")
-    )
+    if ( ! is.null(rv$chisqSims) ) {
+      chisqSims <- rv$chisqSims
+      obs <- chisqStat(rv$DF)
+      n <- length(chisqSims)
+      latest <- chisqSims[n]
+      p.value <- length(chisqSims[chisqSims>=obs])/n
+      percentage <- paste(as.character(round(p.value*100,2)),"%",sep="")
+      df <- data.frame(round(latest,2),n,percentage)
+      names(df) <- c("Last Resampled Chi-Square",
+                    "Number of Resamples So Far",
+                    paste("Percent Above ",round(obs,2),sep="")
+                    )
     df
+    }
   }, include.rownames = FALSE)
   
   output$densityplot <-renderPlot({
-      dchisq <- rv$chisqDensities
-      chisqSims <- rv$chisqSims
-      plot(dchisq$x,dchisq$y,type="l",col="blue",
-           xlab="Chi-Square Value",ylab="Estimated Density",
-           main="Distribution of Resampled Chi-Square Statistics")
-      if (length(chisqSims) <= 200) rug(chisqSims)
-      latest <- chisqSims[length(chisqSims)]
-      points(latest,0,col="blue",pch=19)
-      abline(v=chisqStat(rv$DF))
-      
+    if ( ! is.null(rv$chisqSims) ) {
+        dchisq <- rv$chisqDensities
+        chisqSims <- rv$chisqSims
+        plot(dchisq$x,dchisq$y,type="l",col="blue",
+            xlab="Chi-Square Value",ylab="Estimated Density",
+            main="Distribution of Resampled Chi-Square Statistics")
+        if (length(chisqSims) <= 200) rug(chisqSims)
+        latest <- chisqSims[length(chisqSims)]
+        points(latest,0,col="blue",pch=19)
+        abline(v=chisqStat(rv$DF))
+    }
     })
   
   output$remarksProbDensity <- renderText({
-    obs <- chisqStat(rv$DF)
-    paste0("The curve above approximates the true probability distribution of the chi-square statistic.",
-           " It is based on our resamples so far.  The percentage in the table gives the approximate ",
-           "probability, based on our resamples so far, of getting a chi-square statistic of ",
-           round(obs,2)," or more, if the Null Hypothesis (no relationship between the two factor",
-           " variables under study) is true. The more resamples you take the better these",
-           "approximations will be!")
+    if ( ! is.null(rv$DF) ) {
+      obs <- chisqStat(rv$DF)
+      paste0("The curve above approximates the true probability distribution of the chi-square statistic.",
+            " It is based on our resamples so far.  The percentage in the table gives the approximate ",
+            "probability, based on our resamples so far, of getting a chi-square statistic of ",
+            round(obs,2)," or more, if the Null Hypothesis (no relationship between the two factor",
+            " variables under study) is true. The more resamples you take the better these",
+            "approximations will be!")
+    }
   })
   
   
@@ -307,11 +325,13 @@ shinyServer(function(input, output, session) {
   })
   
   output$remarksProb <- renderText({
-    obs <- chisqStat(rv$DF)
-    paste0("The curve above approximates the true probability distribution of the chi-square statistic.",
-           " The shaded area gives the approximate probability of getting a chi-square statistic of ",
-           round(obs,2)," or more, if the Null Hypothesis (no relationshoip between the two factor",
-           " variables under study) is true.")
+    if ( ! is.null(rv$DF) ) {
+      obs <- chisqStat(rv$DF)
+      paste0("The curve above approximates the true probability distribution of the chi-square statistic.",
+            " The shaded area gives the approximate probability of getting a chi-square statistic of ",
+            round(obs,2)," or more, if the Null Hypothesis (no relationshoip between the two factor",
+            " variables under study) is true.")
+    }
   })
   
 })
