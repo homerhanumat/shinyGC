@@ -42,6 +42,14 @@ shinyServer(function(input, output, session) {
       }
   })
   
+  observeEvent(input$barmosLatest, {
+    updateRadioButtons(session, "barmosInit", selected = input$barmosLatest)
+  })
+  
+  observeEvent(input$barmosInit, {
+    updateRadioButtons(session, "barmosLatest", selected = input$barmosInit)
+  })
+  
   observeEvent(input$sim,{
     rv$state <- 'simulating'
     reps <- min(simLimit, input$numberSims)
