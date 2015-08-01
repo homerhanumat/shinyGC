@@ -1,6 +1,7 @@
 library(DT)
 library(leaflet)
 library(shinyjs)
+library(shinythemes)
 
 labelMandatory <- function(label) {
   tagList(
@@ -44,6 +45,7 @@ surveyVarChoicesSummary <- c("Age" = "age",
 
 tagList(shinyjs::useShinyjs(), shinyjs::inlineCSS(appCSS), navbarPage(
   title = "Ice-Breaker Survey",
+  theme = shinytheme("cerulean"),
   tabPanel(
     title = "Survey",
     fluidPage(

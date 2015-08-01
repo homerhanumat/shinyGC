@@ -1,11 +1,11 @@
 library(shiny)
+library(shinythemes)
 
 # Define UI for CoinFlip application
-shinyUI(pageWithSidebar(
-  
+fluidPage(
   #  Application title
-  headerPanel("Simulating With Two Possible Outcomes"),
-  
+  titlePanel("Simulating With Two Possible Outcomes"),
+  theme = shinytheme("cerulean"),
   # Sidebar
   sidebarPanel(
     conditionalPanel(
@@ -72,4 +72,4 @@ shinyUI(pageWithSidebar(
     
   )
   
-))
+)

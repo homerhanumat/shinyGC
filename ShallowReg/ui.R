@@ -1,11 +1,11 @@
 library(shiny)
 
 # Define UI for SlowGoodness application
-shinyUI(pageWithSidebar(
+fluidPage(
   
   #  Application title
-  headerPanel("Is the Regression Line too Shallow?"),
-  
+  titlePanel("Is the Regression Line too Shallow?"),
+  theme = shinytheme("cerulean"),
   # Sidebar
   sidebarPanel(
     
@@ -57,4 +57,4 @@ shinyUI(pageWithSidebar(
     
   )
   
-))
+)

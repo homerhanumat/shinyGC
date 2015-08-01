@@ -1,8 +1,10 @@
 library(shiny)
 library(tigerstats)
+library(shinythemes)
 
-shinyUI(fluidPage(
+fluidPage(
   titlePanel("Simple Random Sampling from Imagpop"),
+  theme = shinytheme("cerulean"),
   sidebarLayout(
     sidebarPanel(
       width=3,
@@ -34,4 +36,4 @@ shinyUI(fluidPage(
       )
   
   )
-))
+)

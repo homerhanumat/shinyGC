@@ -1,8 +1,10 @@
 library(shiny)
+library(shinythemes)
 
 # Define UI for FindRegLine application
 navbarPage(
   title = "Can You Find the Regression Line?",
+  theme = shinytheme("cerulean"),
   tabPanel(
     title = "The Game",
     sidebarPanel(

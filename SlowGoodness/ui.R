@@ -1,10 +1,12 @@
 library(shiny)
 library(shinyjs)
+library(shinythemes)
 # Define UI for SlowGoodness application
-shinyUI(fluidPage(
+fluidPage(
   useShinyjs(),
   # Application title
   titlePanel("Chi-Square Goodness-of-Fit Resampling"),
+  theme = shinytheme("cerulean"),
   # Sidebar
   sidebarPanel(
 #   conditionalPanel(
@@ -63,4 +65,4 @@ shinyUI(fluidPage(
       )
     )
   )
-))
+)

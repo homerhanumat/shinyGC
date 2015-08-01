@@ -1,10 +1,12 @@
 library(shiny)
+library(shinythemes)
 
 # Define UI for SamplingMethods application
-shinyUI(pageWithSidebar(
+fluidPage(
   
   #  Application title
-  headerPanel("Three Random Sampling Methods"),
+  titlePanel("Three Random Sampling Methods"),
+  theme = shinytheme("cerulean"),
   
   # Sidebar
   sidebarPanel(
@@ -50,4 +52,4 @@ shinyUI(pageWithSidebar(
     
   ) #end main panel
   
-))
+)
