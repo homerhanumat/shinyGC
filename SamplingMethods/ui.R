@@ -10,8 +10,6 @@ fluidPage(
   
   # Sidebar
   sidebarPanel(
-
-      condition="input.sample == 0 || output.totalPrev == output.total",
       
       helpText("Pick a sample size from the options below."),
     
@@ -37,14 +35,14 @@ fluidPage(
   mainPanel(
     
     conditionalPanel(
-      condition="input.sample == 0 || output.totalPrev == output.total",
+      condition="input.sample == 0 || output.beginning == true",
       plotOutput("population"),
       h3("The population has 2704 members, evenly divided into 16 districts."),
       h3("Each dot is a member of the population.")
     ),
     
     conditionalPanel(
-      condition="(input.sample > 0 && input.reset == 0) || output.total > output.totalPrev",
+      condition="output.beginning == false",
       plotOutput("sampleplot"),
       h3(textOutput("explanation"))
     )

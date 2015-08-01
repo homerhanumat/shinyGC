@@ -24,52 +24,32 @@ pointpop <- data.frame(x=xvals,y=yvals,stratum=stratum,status=status)
 # Define server logic for SamplingMethods
 shinyServer(function(input, output) {
 
+  rv <- reactiveValues(
+    begin = TRUE,
+    sample = NULL
+  )
   
   
-  #we also want the ability to refresh the "set-up"
-  total <- 0 #total number of samples over all set-ups including current one
-  totalPrev <- 0 #total number of sanples over all set-ups excluding current one
-  currentCount <- 0
-  
-
-  sampUpdate <- reactive({
-    if (input$sample > 0) {
-
-    currentCount <<- currentCount +1
-    total <<- total + 1
-    }
-    
+  observeEvent(input$sample, {
+    rv$begin <- FALSE
   })
   
+  observeEvent(input$reset, {
+    rv$begin <- TRUE
+  })
   
-  #this erases the history and puts user back to initial graph
-  appReset <- reactive({
-    input$reset
-    totalPrev <<- totalPrev + currentCount
-    currentCount <<- 0
-    return(totalPrev)
+  output$beginning <- reactive({
+    rv$begin
   })
 
-
-  
-  #help with conditonal panals
-  output$totalPrev <- reactive({
-    appReset()
-  })
   
   # needed for the conditional panels to work
-  outputOptions(output, 'totalPrev', suspendWhenHidden=FALSE)
+  outputOptions(output, 'beginning', suspendWhenHidden=FALSE)
   
-  output$total <- reactive({
-    sampUpdate() #for dependency
-    total
-  })
-  
-  # needed for the conditional panels to work
-  outputOptions(output, 'total', suspendWhenHidden=FALSE)
   
   output$population <- renderPlot({
     input$n #to get us going
+    rv$begin
     
     plot(0,0,axes=F,xlim=c(-0.7,N+0.7),ylim=c(-0.7,N+0.7),col="transparent",
          xlab="",ylab="",main="Say Hello to the Population!")
@@ -83,20 +63,15 @@ shinyServer(function(input, output) {
     }
     
     points(pointpop$x,pointpop$y,pch=19,cex=0.1)
-    
-    
-    
+
   })
   
   
   output$sampleplot <- renderPlot({
-
-    sampUpdate()
-    print(total)
-    method <- input$method
+    input$sample
     n <- as.numeric(input$n)
-    
-    meth <- switch(method,
+    method <- input$method
+    meth <- switch(input$method,
                    "srs" = "Simple Random",
                    "strat" = "Stratified",
                    "cluster" = "Cluster"
@@ -167,7 +142,7 @@ shinyServer(function(input, output) {
   })
   
   output$explanation <- renderText({
-    
+    input$sample
     method <- input$method
     n <- as.numeric(input$n)
     
