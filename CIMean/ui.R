@@ -1,6 +1,7 @@
 ## Use navbarPage() to add a related app
 
 library(shiny)
+library(shinythemes)
 
 simLimit <- 10000
 
@@ -10,6 +11,7 @@ simLimit <- 10000
 
 navbarPage(
   title = 'Exploring Confidence Intervals',
+  theme = shinytheme("cerulean"),
   tabPanel(title = "Coverage Properties",
            sidebarPanel(
            conditionalPanel(

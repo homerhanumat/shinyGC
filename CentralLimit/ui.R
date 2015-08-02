@@ -1,14 +1,12 @@
 library(shiny)
-
-
-
+library(shinythemes)
 
 # Define UI for testing application
-shinyUI(pageWithSidebar(
+fluidPage(
   
   #  Application title
-  headerPanel("The Central Limit Theorem"),
-  
+  titlePanel("The Central Limit Theorem"),
+  theme = shinytheme("cerulean"),
   # Sidebar
   sidebarPanel(
     conditionalPanel(
@@ -75,4 +73,4 @@ shinyUI(pageWithSidebar(
     
   ) # end main panel
   
-))
+)

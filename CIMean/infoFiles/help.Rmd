@@ -1,7 +1,9 @@
 ---
 title: "Using the Apps"
 author: "Homer White"
-output: html_document
+output: 
+  html_document:
+    theme:  cerulean
 ---
 
 ```{r echo=FALSE}

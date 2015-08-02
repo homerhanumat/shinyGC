@@ -1,14 +1,14 @@
 library(shiny)
-
+library(shinythemes)
 
 
 
 # Define UI for testing application
-shinyUI(pageWithSidebar(
+fluidPage(
   
   #  Application title
-  headerPanel("Types of Error in Significance Tests"),
-  
+  titlePanel("Types of Error in Significance Tests"),
+  theme = shinytheme("cerulean"),
   # Sidebar
   sidebarPanel(
     withMathJax(helpText("You will work with a population that is normally distributed, with a",
@@ -81,4 +81,4 @@ shinyUI(pageWithSidebar(
     
   ) # end main panel
   
-))
+)
