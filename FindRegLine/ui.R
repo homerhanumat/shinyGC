@@ -45,13 +45,13 @@ navbarPage(
     ),
       conditionalPanel(
         condition="input.submit == 0 || (output.beginning == true || output.playing == true)",
-        plotOutput("gamecloud"),
+        plotOutput("gamecloud", width = "500px", height = "500px"),
         HTML("<h5>(Note: x and y axes for the above plot are in yellow.)</h5>"),
         br()
         ),
       conditionalPanel(
         condition="output.reporting == true",
-        plotOutput("finalcloud")
+        plotOutput("finalcloud", width = "500px", height = "500px")
         ),
       fluidRow(
         column(width = 6,

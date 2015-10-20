@@ -63,7 +63,10 @@ function(input, output, session) {
   #set up:
   player_rank <- NULL
   ta <- round(runif(1, min = lowa, max = higha), 2)
-  tb <- round(runif(1, min = lowb, max = highb), 2)
+  posneg <- rbinom(1, 1, 0.5)
+  tbmin <- ifelse(posneg == 1, highb/2, lowb)
+  tbmax <- ifelse(posneg == 1, highb, lowb/2)
+  tb <- round(runif(1, min = tbmin, max = tbmax), 2)
   y <- ta+tb*x+rnorm(n,mean=0,sd=sigma)
   #SS for the regression line:
   mod <- lm(y~x)
