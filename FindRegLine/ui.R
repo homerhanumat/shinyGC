@@ -78,6 +78,7 @@ navbarPage(
   ),
   tabPanel(
     title = "About",
-    includeHTML("infoFiles/about.html")
+    includeCSS("www/styles.css"),
+    withMathJax(includeHTML("infoFiles/about.html"))
   )
 )

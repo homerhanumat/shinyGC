@@ -2,10 +2,15 @@
 title: "About this App"
 author: "Homer White"
 date: "June 24, 2015"
-output: 
-  html_document:
-    theme:  null
+output:
+  html_fragment:
+    fig_caption: true
 ---
+
+<div id = "aboutfile">
+<h1 class="title">About the App</h1>
+<h4 class="author"><em>Homer White</em></h4>
+
 
 ## Determining the Score
 
@@ -48,3 +53,5 @@ $$\text{Score} = \text{number of turns so far} + \text{current closeness measure
 It's often a good idea to work first with the slider that determines the slope.  Once you think you have the slope about right, use the intercept-slider to move the line up or down horizontally.  You won't get a new score report until you submit, but you can move the line around as much as you like before committing yourself to a submission.
 
 Can you think of a situation where it is in your best interests to stop?  (**Hint:  ** Each additional submission costs you an extra point.)
+
+</div>
