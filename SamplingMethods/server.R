@@ -68,9 +68,9 @@ shinyServer(function(input, output) {
   
   
   output$sampleplot <- renderPlot({
-    input$sample
-    n <- as.numeric(input$n)
-    method <- input$method
+    if (input$sample > 0) {
+    n <- as.numeric(isolate(input$n))
+    method <- isolate(input$method)
     meth <- switch(input$method,
                    "srs" = "Simple Random",
                    "strat" = "Stratified",
@@ -138,11 +138,12 @@ shinyServer(function(input, output) {
         print(filledcircle(r1=0.25,r2=0.0,mid=midpoint,col="blue"))
       }
     }
-    
+  
+    } # end if (input$sample > 0)  
   })
   
   output$explanation <- renderText({
-    input$sample
+    ref <- input$sample
     method <- input$method
     n <- as.numeric(input$n)
     
