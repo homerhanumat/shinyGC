@@ -187,8 +187,8 @@ source("utils.R")
                        ")\n")
       }
       
-      # function and formula:
-      code <- paste0(code,"histogram( ~ ",xvar)
+      # function and formula
+      code <- paste0(code,"lattice::histogram( ~ ",xvar)
       if (entered(input$facet1) && !rv$shingle1) {
         code <- paste0(code, " | ", input$facet1)
       }
@@ -250,11 +250,11 @@ source("utils.R")
         }
       }
       
-      # histogram type, adn densityplot option
+      # histogram type, and densityplot option
       if (entered(input$type)) {
-        if (input$type == "count" || input$type == "density") {
-          code <- paste0(code, ",\n\ttype = \"",input$type, "\"")
-        }
+        code <- paste0(code, ",\n\ttype = \"",input$type, "\"")
+      } else {
+        code <- paste0(code, ",\n\ttype = \"percent\"")
       }
       typeDensity <- entered(input$type) && input$type == "density"
       wantsDensityPlot <- typeDensity && !is.null(input$adddensity) && input$adddensity
