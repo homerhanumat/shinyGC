@@ -6,6 +6,9 @@ library(shinythemes)
 
 source("utils.R")
 
+packages <- c("tigerstats", "tigerData", "mosaicData", "abd", "datasets")
+#packages <- "tigerstats"
+dfList <- getDataFrameChoices(packages)
 
 # Generate UI -------------------
   ui <- fluidPage(
@@ -14,7 +17,8 @@ source("utils.R")
     titlePanel("Cloudplot Code-Helper"),
     sidebarLayout(
       sidebarPanel(width = 3,
-        textInput("data", "Data", value = ""),
+        selectInput("data", "Data", choices = dfList,
+                    multiple = FALSE, selectize = TRUE),
         helpText("Choose your variables."),
         uiOutput("zVar"),
         uiOutput("xVar"),

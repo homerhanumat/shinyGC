@@ -1,5 +1,32 @@
 ## My utils -------
 
+checkDF <- function(dfName) {
+  df <- tryCatch(get(dfName, envir = .GlobalEnv, inherits = TRUE), 
+                 error = function(e) FALSE)
+  # if object if not found, we get FALSE, so return false
+  # snce user can't get to the object anyway:
+  if (is.logical(df) && !df) {
+    return(FALSE)
+  }
+  is.data.frame(df)
+}
+
+getDataFrameChoices <- function(packages) {
+  dfList <- character()
+  for (package in packages) {
+    # from the data() function, pull out just the data names:
+    packList <- data(package = package)$results[,3]
+    # for each one, check that it's a data frame:
+    isDF <- sapply(packList, checkDF)
+    # add the ones that are data frames:
+    dfList <- c(dfList, packList[isDF])
+  }
+  dfList <- sort(unique(dfList))
+  #note:  if there are name conflicts, user gets the df in the
+  #most recently-loaded package, as usual
+  dfList
+}
+
 exists_as_numeric <- function(var) {
   !is.null(var) && !is.na(var)
 }

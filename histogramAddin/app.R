@@ -6,6 +6,8 @@ library(shinythemes)
 
 source("utils.R")
 
+packages <- c("tigerstats", "tigerData", "mosaicData", "abd", "datasets")
+dfList <- getDataFrameChoices(packages)
 
 # Generate UI -------------------
   ui <- fluidPage(
@@ -14,7 +16,8 @@ source("utils.R")
     theme = shinytheme("cerulean"),
       sidebarLayout(
         sidebarPanel(width = 2,
-                     textInput("data", "Data", value = ""),
+                     selectInput("data", "Data", choices = dfList,
+                                 multiple = FALSE, selectize = TRUE),
                      helpText("Choose the numerical variable."),
                      uiOutput("xVar")
         ),
