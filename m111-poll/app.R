@@ -90,7 +90,7 @@ ui <- fluidPage(
         div(
           id = "form",
           helpText(glue::glue(
-            "You can play a game where you toos a fair coin. 
+            "You can play a game where you toss a fair coin. 
                  If the coin lands Heads, you win $12.  If it lands Tails 
                  then you lose $10."
           )),
