@@ -146,7 +146,7 @@ ui <- fluidPage(
             id = "results2",
             plotlyOutput("plot2"),
             HTML("<h2>Reasons Offered</h2>"),
-            htmlOutput("reasons2")
+            tableOutput("reasons2")
           )
         ))
       )
@@ -247,21 +247,27 @@ output$plot1 <- renderPlotly({
       ggplotly(p) %>% config(displayModeBar = FALSE)
       })
   
-  output$reasons1 <- renderText({
+  output$reasons1 <- renderTable({
     req(input$show)
     data <- loadData()
-    responses <- data$reason_once[!is.na(data$reason_once)]
-    stuff <- paste(responses, collapse = "</p><p>")
-    paste0("<p>", stuff, "</p>", collapse = "")
-  })
+    data %>% 
+      select(game_once, reason_once) %>% 
+      rename(response = game_once, reason = reason_once)
+    # responses <- data$reason_once[!is.na(data$reason_once)]
+    # stuff <- paste(responses, collapse = "</p><p>")
+    # paste0("<p>", stuff, "</p>", collapse = "")
+  }, rownames = FALSE)
   
-  output$reasons2 <- renderText({
+  output$reasons2 <- renderTable({
     req(input$show)
     data <- loadData()
-    responses <- data$reason_lots[!is.na(data$reason_lots)]
-    stuff <- paste(responses, collapse = "</p><p>")
-    paste0("<p>", stuff, "</p>", collpase = "")
-  })
+    data %>% 
+      select(game_once, reason_once) %>% 
+      rename(response = game_once, reason = reason_once)
+    # responses <- data$reason_lots[!is.na(data$reason_lots)]
+    # stuff <- paste(responses, collapse = "</p><p>")
+    # paste0("<p>", stuff, "</p>", collpase = "")
+  }, rownames = FALSE)
   
 }
 
