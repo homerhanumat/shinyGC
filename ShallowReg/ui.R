@@ -1,4 +1,5 @@
 library(shiny)
+library(shinythemes)
 
 # Define UI for SlowGoodness application
 fluidPage(
