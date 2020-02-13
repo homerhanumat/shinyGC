@@ -5,7 +5,8 @@ library(ggplot2)
 library(plotly)
 library(dplyr)
 
-
+# how far in the past (in seconds) to show responses
+time_limit <- 600
 
 # which fields get saved
 fieldsAll <- c("game_once", "reason_once", "game_lots", "reason_lots")
@@ -53,12 +54,11 @@ loadData <- function() {
   data <- do.call(rbind, data)
   data$timestamp <- as.POSIXct(data$timestamp, origin="1970-01-01")
   df <- data %>% 
-    filter(difftime(Sys.time(), timestamp, units = "secs") < 600)
+    filter(difftime(Sys.time(), timestamp, units = "secs") < time_limit)
   df
 }
 
 # directory where responses get stored
-
 responsesDir <- file.path("responses")
 
 if (!dir.exists("responses")) {
@@ -102,15 +102,29 @@ ui <- fluidPage(
           helpText(glue::glue(
             "Suppose that you could play the game 2000 times, not paying
                  and receiving money as you go but instead
-                 settling up AFTER all 200 tosses."
+                 settling up AFTER all the tosses."
           )),
           radioButtons("game_lots", labelMandatory("Would you play the game 2000 tmes?"),
             choices = c("Yes", "No", "I cannot decide!"),
             selected = ""
           ),
           textAreaInput("reason_lots", "Briefly explain your choice"),
-          actionButton("submit", "Submit", class = "btn-primary"),
-
+          fluidRow(
+            column(
+              6,
+              actionButton("submit", "Submit", class = "btn-primary"),
+              shinyjs::hidden(
+                div(
+                  id = "thankyou_msg",
+                  p("Thanks for your submission!")
+                )
+              )
+            ),
+            column(
+              6,
+              actionButton("show", "Show responses"),
+            )
+          ),
           shinyjs::hidden(
             span(id = "submit_msg", "Submitting..."),
             div(
@@ -119,14 +133,6 @@ ui <- fluidPage(
             )
           )
         ),
-
-        shinyjs::hidden(
-          div(
-            id = "thankyou_msg",
-            h3("Thanks, your response was submitted successfully!"),
-            actionButton("show", "Show responses")
-          )
-        )
       ),
       column(
         8,
@@ -193,7 +199,8 @@ server <- function(input, output, session) {
       {
         saveData(formData())
         shinyjs::reset("form")
-        shinyjs::hide("form")
+        #shinyjs::hide("form")
+        shinyjs::hide("submit")
         shinyjs::show("thankyou_msg")
         shinyjs::show("show")
       },
@@ -209,10 +216,10 @@ server <- function(input, output, session) {
   })
 
   # submit another response
-  observeEvent(input$submit_another, {
-    shinyjs::show("form")
-    shinyjs::hide("thankyou_msg")
-  })
+  # observeEvent(input$submit_another, {
+  #   shinyjs::show("form")
+  #   shinyjs::hide("thankyou_msg")
+  # })
   
   observeEvent(input$show, {
     shinyjs::show("results1")
