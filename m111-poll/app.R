@@ -262,7 +262,7 @@ output$plot1 <- renderPlotly({
     req(input$show)
     data <- loadData()
     data %>% 
-      select(game_once, reason_once) %>% 
+      select(game_lots, reason_lots) %>% 
       rename(response = game_lots, reason = reason_lots)
     # responses <- data$reason_lots[!is.na(data$reason_lots)]
     # stuff <- paste(responses, collapse = "</p><p>")
