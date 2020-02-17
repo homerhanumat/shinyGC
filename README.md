@@ -4,6 +4,7 @@ This repository is a collection of Shiny apps teaching, mostly in introductory s
 
 Some apps were written a while back when I was just learning my way around Shiny.  They will be re-factored someday; in the meantime I don't recommend emulating their coding strategies.
 
+
 Reasonably good code can be found in:
 
 * CIMean (explore confidence interval using simulation)
