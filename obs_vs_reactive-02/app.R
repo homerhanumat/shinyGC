@@ -7,6 +7,7 @@
 library(shiny)
 library(ggplot2)
 
+
 ui <- pageWithSidebar(
   headerPanel("With Reactives"),
   sidebarPanel(
