@@ -273,7 +273,7 @@ function(input, output, session) {
               "Closeness Measure",
               "Turns So Far","Score So Far")
    tab
- })
+ }, rownames = TRUE)
  
  output$rank <- reactive({
    input$enditall

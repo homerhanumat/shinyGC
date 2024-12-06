@@ -42,7 +42,7 @@ When you play the game, your "closeness measure" is determined by the following 
 
 $$\text{closeness} = \frac{ESS_{\text{your current line}} - ESS_{\text{the regression line}}}{ESS_{\bar{y}\text{-line}} - ESS_{\text{the regression line}}} \times 100.$$
 
-Thus, the closeness measure is computes how close your current line comes to the regression line with how close the $\bar{y}$-line is to to the regression line.  This comparison is multiplied by 100 so that you can think of it as a percentage. When the game begins your line *is* the $\bar{y}$-line, so the closeness measure is 100%.
+Thus, the closeness measure computes how close your current line comes to the regression line with how close the $\bar{y}$-line is to the regression line.  This comparison is multiplied by 100 so that you can think of it as a percentage. When the game begins your line *is* the $\bar{y}$-line, so the closeness measure is 100%.
 
 Your score at any moment is:
 
