@@ -58,9 +58,10 @@ ui <- shinyUI(
       sidebarMenu(
         id = "menu",
         menuItem(
-          "About the Game", 
+          "About the Game",
           icon = icon("circle-info"),
-          tabName = "about"),
+          tabName = "about"
+        ),
         menuItem(
           "Star Trek",
           tabName = "game",
@@ -85,15 +86,15 @@ ui <- shinyUI(
                 label = "Start Game"
               )
             ),
-              column(
-                width = 2,
-                hidden(
-                  actionButton(
-                    inputId = "restart",
-                    label = "Play Again"
-                  )
+            column(
+              width = 2,
+              hidden(
+                actionButton(
+                  inputId = "restart",
+                  label = "Play Again"
                 )
-              ),
+              )
+            ),
             br(), br(),
             plotOutput("plot", height = "auto", click = "expl")
           )
@@ -123,7 +124,6 @@ You can fire torpedoes as often as you like.  Every two seconds the screen will 
           )
         )
       )
-      
     ) # end dashboard body
   ) # end dashboard page
 ) # end shinyUI
@@ -131,9 +131,6 @@ You can fire torpedoes as often as you like.  Every two seconds the screen will 
 
 ## server logic ----
 server <- function(input, output, session) {
-  
-
-  
   rv <- reactiveValues(
     klingon = get_initial_location(),
     shields = shields_initial,
@@ -142,8 +139,8 @@ server <- function(input, output, session) {
     torpedo_supply = initial_torpedoes,
     step = 0
   )
-  
-  
+
+
   observeEvent(input$restart, {
     rv$klingon <- get_initial_location()
     rv$shields <- shields_initial
@@ -152,14 +149,14 @@ server <- function(input, output, session) {
     rv$torpedo_supply <- initial_torpedoes
     rv$step <- 0
   })
-  
+
   observeEvent(input$start, {
     hide("start")
     show("restart")
   })
-  
+
   observeEvent(input$expl, {
-    if(rv$torpedo_supply > 0) {
+    if (rv$torpedo_supply > 0) {
       rv$shot <- c(rv$shot, list(input$expl))
       rv$torpedo_supply <- rv$torpedo_supply - 1
     }
@@ -169,39 +166,41 @@ server <- function(input, output, session) {
     req(input$start)
     req(input$menu == "game")
     invalidateLater(interval, session)
-    
+
     isolate({
-      k <- rv$klingon
-      s <- rv$shields
-      if (s > 0 & rv$klingon_alive) {
-        d <- distance(ship[1], ship[2], k[1], k[2])
-        nl <-  k + move(
-          len = klingon_step(d),
-          pos = k,
-          target = ship
-        )
-        rv$klingon <- nl
-        d <- distance(ship[1], ship[2], nl[1], nl[2])
-        rv$shields <- s - klingon_shot(d)
-      }
-      if (!is.null(rv$shot)) {
-        for (i in 1:length(rv$shot)) {
-          expl <- rv$shot[[i]]
-          range <- distance(expl$x, expl$y, ship[1], ship[2])
-          k <- rv$klingon
-          d <- distance(expl$x, expl$y, k[1], k[2])
-          if (d < torpedo_radius(range)) {
-            rv$klingon_alive <- FALSE
+      if (rv$step > 0) {
+        k <- rv$klingon
+        s <- rv$shields
+        if (s > 0 & rv$klingon_alive) {
+          d <- distance(ship[1], ship[2], k[1], k[2])
+          nl <- k + move(
+            len = klingon_step(d),
+            pos = k,
+            target = ship
+          )
+          rv$klingon <- nl
+          d <- distance(ship[1], ship[2], nl[1], nl[2])
+          rv$shields <- s - klingon_shot(d)
+        }
+        if (!is.null(rv$shot)) {
+          for (i in 1:length(rv$shot)) {
+            expl <- rv$shot[[i]]
+            range <- distance(expl$x, expl$y, ship[1], ship[2])
+            k <- rv$klingon
+            d <- distance(expl$x, expl$y, k[1], k[2])
+            if (d < torpedo_radius(range)) {
+              rv$klingon_alive <- FALSE
+            }
           }
         }
       }
-      rv$step <- rv$step + 1
     })
-
+    isolate(rv$step <- rv$step + 1)
   })
 
 
-  output$plot <- renderPlot({
+  output$plot <- renderPlot(
+    {
       rv$step
       isolate({
         s <- rv$shields
@@ -221,7 +220,7 @@ server <- function(input, output, session) {
               lines(
                 x = c(ship["x"], expl$x),
                 y = c(ship["y"], expl$y),
-                col = "red",
+                col = "yellow",
                 lwd = 2
               )
               range <- distance(expl$x, expl$y, ship[1], ship[2])
@@ -229,7 +228,7 @@ server <- function(input, output, session) {
                 expl$x, expl$y,
                 circles = torpedo_radius(range), add = TRUE,
                 inches = FALSE,
-                fg = "red",
+                fg = "orange",
                 lwd = 2
               )
             }
@@ -255,8 +254,10 @@ server <- function(input, output, session) {
       if (s > 0 & rv$klingon_alive) {
         scotty_message <-
           paste0("<p>Shields are down to ", round(s, digits = 2),
-                 " Cap'n!  We have ",
-                 t, " torpedoes left.</p>", sep = "")
+            " Cap'n!  We have ",
+            t, " torpedoes left.</p>",
+            sep = ""
+          )
       } else if (s > 0 & !rv$klingon_alive) {
         scotty_message <- "Ya got 'em, Cap'n!"
       } else {
@@ -265,7 +266,6 @@ server <- function(input, output, session) {
       scotty_message
     })
   })
-  
 }
 
 ## run the app ----
