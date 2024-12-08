@@ -1,1 +1,1 @@
-shinylive::export("kernel", "docs", subdir = "kernel")
+shinylive::export("startrek", "docs", subdir = "startrek")
