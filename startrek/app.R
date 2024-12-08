@@ -56,6 +56,7 @@ ui <- shinyUI(
     dashboardHeader(title = "Star Trek"),
     dashboardSidebar(
       sidebarMenu(
+        id = "menu",
         menuItem(
           "About the Game", 
           icon = icon("circle-info"),
@@ -131,6 +132,8 @@ You can fire torpedoes as often as you like.  Every two seconds the screen will 
 ## server logic ----
 server <- function(input, output, session) {
   
+
+  
   rv <- reactiveValues(
     klingon = get_initial_location(),
     shields = shields_initial,
@@ -164,6 +167,7 @@ server <- function(input, output, session) {
 
   observe({
     req(input$start)
+    req(input$menu == "game")
     invalidateLater(interval, session)
     
     isolate({
