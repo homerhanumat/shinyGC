@@ -9,7 +9,7 @@ library(glue)
 ## Globals ----
 
 ## time allowed (sec):
-time_allowed <- 120
+time_allowed <- 60
 lexicon <- words::words$word
 ## number of letters provided:
 n <- 12
@@ -86,7 +86,8 @@ server <- function(input, output, session) {
   observe({
     req(input$play)
     invalidateLater(100, session)
-    d <- as.numeric(difftime(Sys.time(), rv$time))
+    d <- as.numeric(difftime(Sys.time(), rv$time, units = "secs"))
+    print(d)
     if (d > time_allowed) {
       rv$playing <- FALSE
       hide("controls")
