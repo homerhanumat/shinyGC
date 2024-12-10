@@ -156,6 +156,7 @@ server <- function(input, output, session) {
   })
 
   observeEvent(input$expl, {
+    req(input$start)
     if (rv$torpedo_supply > 0) {
       rv$shot <- c(rv$shot, list(input$expl))
       rv$torpedo_supply <- rv$torpedo_supply - 1

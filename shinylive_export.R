@@ -1,1 +1,1 @@
-shinylive::export("spellbound", "docs", subdir = "spellbound")
+shinylive::export("startrek", "docs", subdir = "startrek")
