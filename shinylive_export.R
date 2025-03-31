@@ -1,1 +1,1 @@
-shinylive::export("startrek", "docs", subdir = "startrek")
+shinylive::export("widget-challenge", "docs", subdir = "widget-challenge")
