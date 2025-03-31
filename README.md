@@ -10,7 +10,12 @@ Reasonably good code can be found in:
 * FindRegLine (regression line game that records students' scores)
 * GetToKnow (survey app, souped up with Google maps and basic descriptive statistics)
 * SlowAssoc (simulation-based introduction to inference, in the context of the chi-square test for association; uses the new `rhandsontable` package to allow the user to enter data into a two-way table)
+* accidents (based on an app in [Mastering Shiny](https://mastering-shiny.org/))
 
-A tutorial on writing Shiny teaching apps can be found at:
+To run an app in your browser with Web Assembly:
 
-[http://homer.shinyapps.io/sim_tutorial_Rmd](http://homer.shinyapps.io/sim_tutorial_Rmd)
+>https:homerhanumat.github.io/<app-name>
+
+For example:
+
+>{https:homerhanumat.github.io/accidents}(https:homerhanumat.github.io/accidents)
