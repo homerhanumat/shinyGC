@@ -18,4 +18,4 @@ To run an app in your browser with Web Assembly:
 
 For example:
 
->{https:homerhanumat.github.io/accidents}(https:homerhanumat.github.io/accidents)
+>[https:homerhanumat.github.io/accidents](https:homerhanumat.github.io/accidents)
