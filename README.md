@@ -14,7 +14,7 @@ Reasonably good code can be found in:
 
 To run an app in your browser with Web Assembly:
 
->https:homerhanumat.github.io/<app-name>
+>https:homerhanumat.github.io/app-name
 
 For example:
 
