@@ -1,1 +1,1 @@
-shinylive::export("accidents", "docs", subdir = "accidents")
+shinylive::export("coin-game", "docs", subdir = "coin-game")
