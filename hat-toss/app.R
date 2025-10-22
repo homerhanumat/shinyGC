@@ -62,7 +62,7 @@ server <- function(input, output) {
     #    The proportion of times this has occurred is:  {avg}."
     # )
     msg <- glue::glue(
-      "After {rv$plays} tosses, at least once person got his/her own hat {rv$plays} times.
+      "After {rv$plays} tosses, at least once person got his/her own hat {rv$occurred} times.
       The proportion of times this happened is:    {avg}."
     )
     rv$msg <- msg
