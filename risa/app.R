@@ -31,26 +31,62 @@ risa_plot <- function(picard, laris, dist, attempts) {
   title(main = plot_title)
 }
 
+make_histogram <- function(sims) {
+  # Ensure sims is numeric and positive
+  if (!is.numeric(sims) || any(sims <= 0)) {
+    stop("'sims' must be a numeric vector of positive integers.")
+  }
+  
+  # Define breaks so that bins are 1 unit wide and centered on integers
+  max_val <- max(sims)
+  breaks <- seq(0.5, max_val + 0.5, by = 1)
+  
+  # Create histogram
+  hist(
+    sims,
+    breaks = breaks,
+    col = "skyblue",
+    border = "black",
+    main = "Histogram of Simulations",
+    xlab = "Number of Attempts Needed",
+    ylab = "Count"
+  )
+}
+
+
 ## ui
 ui <- pageWithSidebar(
   headerPanel = titlePanel("Risa Rendevous"),
   sidebarPanel = sidebarPanel(
-    actionButton("go", "Try to Meet!")
+    actionButton("go", "Try!"),
+    width = 2
   ),
-  mainPanel = mainPanel(plotOutput("risaPlot"))
+  mainPanel = mainPanel(
+    fluidRow(
+      column(
+        width = 6,
+        plotOutput("risaPlot")
+      ),
+      column(
+        width = 6,
+        plotOutput("histPlot")
+      )
+    )
+  )
 )
 
 
 ## server logic
-server <- function(input, output) {
+server <- function(input, output, session) {
   rv <- reactiveValues(
     attempts = 0,
     distance = Inf,
     picard = NULL,
     laris = NULL,
-    trying = FALSE
+    trying = FALSE,
+    sims = numeric()
   )
-  
+
   observeEvent(input$go, {
     rv$distance <- Inf
     rv$attempts <- 0
@@ -58,7 +94,7 @@ server <- function(input, output) {
     rv$laris <- NULL
     rv$trying <- TRUE
   })
-  
+
   observe({
     invalidateLater(1000)
     isolate({
@@ -76,25 +112,44 @@ server <- function(input, output) {
       print(rv$distance)
       if (dist < range) {
         rv$trying <- FALSE
+        rv$sims <- c(rv$sims, rv$attempts)
       }
     })
   })
-  
+
   output$risaPlot <- renderPlot(
     {
       if (rv$attempts > 0) {
         isolate({
           risa_plot(
-            picard = rv$picard, 
-            laris = rv$laris, 
+            picard = rv$picard,
+            laris = rv$laris,
             dist = rv$distance,
             attempts = rv$attempts
           )
         })
       }
     },
-    width = 400,
-    height = 400
+    height = function() {
+      # Set the height to be equal to the current width
+      session$clientData$output_risaPlot_width
+    }
+  )
+
+  output$histPlot <- renderPlot(
+    {
+      if (length(rv$sims) > 0) {
+        isolate({
+          make_histogram(
+            sims = rv$sims
+          )
+        })
+      }
+    },
+    height = function() {
+      # Set the height to be equal to the current width
+      session$clientData$output_histPlot_width
+    }
   )
 }
 
