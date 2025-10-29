@@ -1,1 +1,1 @@
-shinylive::export("risa", "docs", subdir = "risa")
+shinylive::export("number-needed", "docs", subdir = "number-needed")

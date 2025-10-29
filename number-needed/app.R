@@ -1,5 +1,6 @@
 library(shiny)
 library(glue)
+library(shinyjs)
 
 ## globals
 
@@ -38,7 +39,8 @@ ui <- pageWithSidebar(
   headerPanel = titlePanel("The Number of Numbers Needed"),
   sidebarPanel = sidebarPanel(
     actionButton("go", "Get a number"),
-    actionButton("restart", "Start Over")
+    hidden(actionButton("restart", "Do It Again")),
+    useShinyjs()
   ),
   mainPanel = mainPanel(
     plotOutput("plot"),
@@ -62,6 +64,8 @@ server <- function(input, output) {
     rv$numbers <- numeric()
     rv$msg <- ""
     rv$trying <- TRUE
+    show("go")
+    hide("restart")
   })
   
   observeEvent(input$go, {
@@ -75,6 +79,8 @@ server <- function(input, output) {
         {paste(round(rv$numbers, digits = 3), collapse =', ')}."
     )
     if (sum(rv$numbers) > 1) {
+      hide("go")
+      show("restart")
       rv$trying <- FALSE
       rv$plays <- rv$plays + 1
       rv$total <- rv$total + length(rv$numbers)
@@ -83,8 +89,9 @@ server <- function(input, output) {
         "
         
         The sum exceeds 1.  You are done with this try.
-        You have exceeded 1 {rv$plays} times.
-        The mean number of numbers needed so far is {avg}."
+        
+        Number of tries so far: {rv$plays}.
+        The mean number of numbers needed in these {rv$plays} tries is {avg}."
       )
       msg <- c(msg, more_msg)
     }
