@@ -1,1 +1,1 @@
-shinylive::export("fruitjack", "docs", subdir = "fruitjack")
+shinylive::export("stack-stepper", "docs", subdir = "stack-stepper")
