@@ -1,1 +1,1 @@
-shinylive::export("stack-stepper", "docs", subdir = "stack-stepper")
+shinylive::export("memo-fib", "docs", subdir = "memo-fib")

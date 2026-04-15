@@ -140,34 +140,78 @@ render_code <- function(active_line = NULL, event_type = NULL) {
 # Active call-stack display
 # ─────────────────────────────────────────────────────────────────────────────
 
-render_active_stack <- function(stack) {
-  if (length(stack) == 0) {
+render_active_stack <- function(stack, event_type = NULL, current_n = NULL, current_value = NULL) {
+  # For return/hit events the frame is absent from `stack` (popped or never
+  # pushed), so temporarily add it back at the top for display.
+  display_stack <- if (event_type %in% c("return", "hit") && !is.null(current_n)) {
+    c(stack, current_n)
+  } else {
+    stack
+  }
+
+  if (length(display_stack) == 0) {
     return(tags$p(class = "text-muted fst-italic small mt-2",
                   "No active computations."))
   }
 
-  frame_tags <- lapply(rev(seq_along(stack)), function(i) {
-    n      <- stack[[i]]
-    is_top <- i == length(stack)
+  frame_tags <- lapply(rev(seq_along(display_stack)), function(i) {
+    n      <- display_stack[[i]]
+    is_top <- i == length(display_stack)
+
+    status <- if (is_top && identical(event_type, "call")) {
+      "active"
+    } else if (is_top && identical(event_type, "return")) {
+      "returning"
+    } else if (is_top && identical(event_type, "hit")) {
+      "hit"
+    } else {
+      "waiting"
+    }
+
+    border_color <- switch(status,
+      active    = "#0d6efd",
+      returning = "#198754",
+      hit       = "#0dcaf0",
+      waiting   = "#adb5bd"
+    )
+    status_badge <- switch(status,
+      active    = tags$span(class = "badge bg-primary ms-2",            "computing"),
+      returning = tags$span(class = "badge bg-success ms-2",            "returning"),
+      hit       = tags$span(class = "badge bg-info ms-2 text-dark",     "cache hit!"),
+      waiting   = tags$span(class = "badge bg-secondary ms-2",          "waiting")
+    )
+    ret_tag <- if (status %in% c("returning", "hit") && !is.null(current_value)) {
+      tags$span(
+        class = "badge bg-success-subtle text-success-emphasis border border-success-subtle",
+        paste("\u21d2", current_value)
+      )
+    } else {
+      tags$span(class = "text-muted small fst-italic", "pending\u2026")
+    }
+
     tags$div(
-      class = "card mb-1",
-      style = if (is_top) "border-left:4px solid #0d6efd;"
-              else        "border-left:4px solid #adb5bd;",
+      class = "card mb-2",
+      style = paste0("border-left: 4px solid ", border_color, ";"),
       tags$div(
-        class = "card-body py-2 px-3 d-flex align-items-center justify-content-between",
-        tags$code(paste0("fib(", n, ")")),
-        if (is_top)
-          tags$span(class = "badge bg-primary",   "computing")
-        else
-          tags$span(class = "badge bg-secondary", "waiting")
+        class = "card-body py-2 px-3",
+        tags$div(
+          class = "d-flex align-items-center justify-content-between flex-wrap gap-1",
+          tags$div(
+            class = "d-flex align-items-center",
+            tags$span(class = "text-muted me-2 small", paste0("#", i)),
+            tags$code(paste0("fib(", n, ")")),
+            status_badge
+          ),
+          ret_tag
+        )
       )
     )
   })
 
   tagList(
     tags$p(class = "text-muted small mb-2",
-           paste0("Depth: ", length(stack), " frame",
-                  if (length(stack) != 1) "s" else "")),
+           paste0("Depth: ", length(display_stack), " frame",
+                  if (length(display_stack) != 1) "s" else "")),
     tagList(frame_tags)
   )
 }
@@ -527,7 +571,11 @@ server <- function(input, output, session) {
     if (length(steps) == 0 || idx == 0L)
       return(tags$p(class = "text-muted fst-italic small mt-2",
                     "Press Run to begin."))
-    render_active_stack(steps[[idx]]$stack)
+    step <- steps[[idx]]
+    render_active_stack(step$stack,
+                        event_type    = step$type,
+                        current_n     = step$n,
+                        current_value = step$value)
   })
 
   # ── Memo cache ────────────────────────────────────────────────────────────
