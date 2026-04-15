@@ -1,1 +1,3 @@
-shinylive::export("memo-fib", "docs", subdir = "memo-fib")
+app <- "widget-challenge"
+shinylive::export(app, "docs", subdir = app)
+
