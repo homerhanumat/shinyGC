@@ -1,3 +1,3 @@
-app <- "widget-challenge"
+app <- "SamplingMethods"
 shinylive::export(app, "docs", subdir = app)
 
