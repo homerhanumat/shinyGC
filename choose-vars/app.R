@@ -2,21 +2,18 @@ library(shiny)
 library(bslib)
 library(ggplot2)
 
-qualifying_datasets <- c("ChickWeight", "CO2", "esoph", "penguins", "penguins_raw")
 
-get_dataset <- function(nm) get(nm, envir = as.environment("package:datasets"))
+cat_vars <- c("species", "island", "sex")
+num_vars <- setdiff(names(penguins), cat_vars)
 
 ui <- page_sidebar(
-  title = "Dataset Explorer",
+  useShinyjs(),
+  title = "Penguin Violins",
   theme = bs_theme(version = 5),
   sidebar = sidebar(
     width = 280,
-    selectInput("dataset", "Dataset", choices = c("-- select --" = "", qualifying_datasets)),
-    conditionalPanel(
-      condition = "input.dataset != ''",
-      selectInput("num_var", "Numerical variable (y-axis)", choices = NULL),
-      selectInput("cat_var", "Categorical variable (x-axis)", choices = NULL)
-    )
+    selectInput("numvar", "Numerical variable (y-axis)", choices = num_vars),
+    selectInput("catvar", "Categorical variable (x-axis)", choices = cat_vars),
   ),
   card(
     full_screen = TRUE,
@@ -26,27 +23,13 @@ ui <- page_sidebar(
 )
 
 server <- function(input, output, session) {
-  current_data <- reactive({
-    req(input$dataset)
-    get_dataset(input$dataset)
-  })
 
-  observeEvent(current_data(), {
-    df <- current_data()
-    num_vars <- names(Filter(is.numeric, df))
-    cat_vars <- names(Filter(function(x) is.factor(x) || is.character(x), df))
-    updateSelectInput(session, "num_var", choices = num_vars)
-    updateSelectInput(session, "cat_var", choices = cat_vars)
-  })
-
-  output$violin <- renderPlot({
-    req(input$dataset != "", input$num_var, input$cat_var)
-    df <- current_data()
-    ggplot(df, aes(x = .data[[input$cat_var]], y = .data[[input$num_var]])) +
-      geom_violin() +
-      geom_jitter(width = 0.15, alpha = 0.4) +
-      labs(x = input$cat_var, y = input$num_var, title = input$dataset)
+output$violin <- renderPlot({
+  ggplot(penguins, aes(x = .data[[input$catvar]], y = .data[[input$numvar]])) +
+    geom_violin() +
+    geom_jitter(width = 0.15, alpha = 0.4) +
+    labs(x = input$cat_var, y = input$num_var, title = input$dataset)
   })
 }
 
-shinyApp(ui, server, options = list(display.mode = "showcase"))
+shinyApp(ui, server)
