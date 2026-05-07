@@ -7,7 +7,6 @@ cat_vars <- c("species", "island", "sex")
 num_vars <- setdiff(names(penguins), cat_vars)
 
 ui <- page_sidebar(
-  useShinyjs(),
   title = "Penguin Violins",
   theme = bs_theme(version = 5),
   sidebar = sidebar(
